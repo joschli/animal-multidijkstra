@@ -1,3 +1,24 @@
 %Animal 1.4
 title "Multicriterial Dijkstra"
 author "Tim Witzel, Jonas Schlitzer"
+
+{
+codeGroup "listSource" at (600, 50) color black highlightColor red
+addCodeLine "Input: A timetable graph and a query" to "listSource"
+addCodeLine "Output: a set of advanced pareto optimal labels at the terminal" to "listSource"
+addCodeLine "" to "listSource"
+addCodeLine "PriorityQueue pq := {};" to "listSource"
+addCodeLine "createStartLabels();" to "listSource"
+addCodeLine "while !pq.isEmpty() do" to "listSource"
+addCodeLine "	Label label := pq.extractLabel();" to "listSource"
+addCodeLine "	foreach outgoing edge e=(v,w) do" to "listSource"
+addCodeLine "		Label newLabel := createLabel(label, e);" to "listSource"
+addCodeLine "		if isDominated(newLabel) then continue;" to "listSource"
+addCodeLine "		if isTerminalReached(newLabel) then" to "listSource"
+addCodeLine "			terminalList.insert(newLabel);" to "listSource"
+addCodeLine "		else" to "listSource"
+addCodeLine "			labelListAt(w).insert(newLabel);" to "listSource"
+addCodeLine "			labelList(w).removeLabelDominatedBy(newLabel);" to "listSource"
+addCodeLine "			pq.insert(newLabel)" to "listSource"
+addCodeLine "filterList(terminalList);" to "listSource"
+}
