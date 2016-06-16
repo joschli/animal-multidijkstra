@@ -22,10 +22,16 @@ addCodeLine "			labelList(w).removeLabelDominatedBy(newLabel);" to "listSource" 
 addCodeLine "			pq.insert(newLabel)" to "listSource" indentation 3
 addCodeLine "filterList(terminalList);" to "listSource" indentation 0
 array "array" (400, 70)  color (0, 0, 0) fillColor (192, 192, 192) elementColor (0, 0, 0) elemHighlight (0, 255, 0) cellHighlight (255, 200, 0) vertical length 8 "Test1" "Test3" "Test7" "Test5" "Test2" "Test6" "Test8" "Test4"  depth 10 font SansSerif size 12
+graph "graph" size 4 bgcolor light Gray outlineColor black highlightColor green2  nodeFontColor black edgeFontColor black directed weighted nodes { "Start" (200, 100), "A" (50,250), "B" (350,250), "Goal" (200, 400)} edges {(0,1, "{10,1} "), (0,2, "{15,0}"), (1,3, "{30,1}") (2,3, "{20, 3} ")}
+highlightNode on "graph" nodes 0
+highlightEdge on "graph" (0,1)
 }
 
 {
 	 arrayPut "Test" on "array" position 2
 	 highlightArrayCell on "array" position 2
 	 highlightArrayCell on "array" position 3
+}
+
+
 }
