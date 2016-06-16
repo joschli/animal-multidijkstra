@@ -3,32 +3,165 @@ title "Multicriterial Dijkstra"
 author "Tim Witzel, Jonas Schlitzer"
 
 {
-codeGroup "listSource" at (600, 50) color black highlightColor red
-addCodeLine "Input: A timetable graph and a query" to "listSource"
-addCodeLine "Output: a set of advanced pareto optimal labels at the terminal" to "listSource"
-addCodeLine "" to "listSource"
-addCodeLine "PriorityQueue pq := {};" to "listSource"
-addCodeLine "createStartLabels();" to "listSource"
-addCodeLine "while !pq.isEmpty() do" to "listSource"
-addCodeLine "	Label label := pq.extractLabel();" to "listSource" indentation 1
-addCodeLine "	foreach outgoing edge e=(v,w) do" to "listSource" indentation 1
-addCodeLine "		Label newLabel := createLabel(label, e);" to "listSource" indentation 2
-addCodeLine "		if isDominated(newLabel) then continue;" to "listSource" indentation 2
-addCodeLine "		if isTerminalReached(newLabel) then" to "listSource" indentation 2
-addCodeLine "			terminalList.insert(newLabel);" to "listSource" indentation 3
-addCodeLine "		else" to "listSource" indentation 2
-addCodeLine "			labelListAt(w).insert(newLabel);" to "listSource" indentation 3
-addCodeLine "			labelList(w).removeLabelDominatedBy(newLabel);" to "listSource" indentation 3
-addCodeLine "			pq.insert(newLabel)" to "listSource" indentation 3
-addCodeLine "filterList(terminalList);" to "listSource" indentation 0
-array "array" (400, 70)  color (0, 0, 0) fillColor (192, 192, 192) elementColor (0, 0, 0) elemHighlight (0, 255, 0) cellHighlight (255, 200, 0) vertical length 8 "Test1" "Test3" "Test7" "Test5" "Test2" "Test6" "Test8" "Test4"  depth 10 font SansSerif size 12
+codeGroup "code" at (600, 50) color black highlightColor red
+addCodeLine "Input: A timetable graph and a query" to "code"
+addCodeLine "Output: a set of advanced pareto optimal labels at the terminal" to "code"
+addCodeLine "" to "code"
+addCodeLine "PriorityQueue pq := {};" to "code"
+addCodeLine "createStartLabels();" to "code"
+addCodeLine "while !pq.isEmpty() do" to "code"
+addCodeLine "	Label label := pq.extractLabel();" to "code" indentation 1
+addCodeLine "	foreach outgoing edge e=(v,w) do" to "code" indentation 1
+addCodeLine "		Label newLabel := createLabel(label, e);" to "code" indentation 2
+addCodeLine "		if isDominated(newLabel) then continue;" to "code" indentation 2
+addCodeLine "		if isTerminalReached(newLabel) then" to "code" indentation 2
+addCodeLine "			terminalList.insert(newLabel);" to "code" indentation 3
+addCodeLine "		else" to "code" indentation 2
+addCodeLine "			labelListAt(w).insert(newLabel);" to "code" indentation 3
+addCodeLine "			labelList(w).removeLabelDominatedBy(newLabel);" to "code" indentation 3
+addCodeLine "			pq.insert(newLabel)" to "code" indentation 3
+addCodeLine "filterList(terminalList);" to "code" indentation 0
+array "pq" (400, 70)  color (0, 0, 0) fillColor (192, 192, 192) elementColor (0, 0, 0) elemHighlight (0, 171, 17) cellHighlight (255, 200, 0) vertical length 20 "PQ:           " "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" depth 1 font SansSerif size 12
+array "labels" (500, 70)  color (0, 0, 0) fillColor (192, 192, 192) elementColor (0, 0, 0) elemHighlight (0, 255, 0) cellHighlight (255, 200, 0) vertical length 20 "Start:           " "" "" "" "A:" "" "" "" "" "" "" "" "B:" "" "" "" "" "Goal:" "" "" depth 1 font SansSerif size 12
 graph "graph" size 4 bgcolor light Gray outlineColor black highlightColor green2  nodeFontColor black edgeFontColor black directed weighted nodes { "Start" (200, 100), "A" (50,250), "B" (350,250), "Goal" (200, 400)} edges {(0,1, "{10,1} "), (0,2, "{15,0}"), (1,3, "{30,1}") (2,3, "{20, 3} ")}
-highlightNode on "graph" nodes 0
-highlightEdge on "graph" (0,1)
+array "newLabelArray" (180, 470) color (0, 0, 0) fillColor(192, 192, 192) elementColor (0, 0, 0) elemHighlight (0, 255, 0) cellHighlight (255, 200, 0) horizontal length 2 "newLabel: " "              " depth 1 font SansSerif size 12
 }
-
 {
-	 arrayPut "Test" on "array" position 2
-	 highlightArrayCell on "array" position 2
-	 highlightArrayCell on "array" position 3
+	highlightCode on "code" line 4 row 0  
+}
+{
+	highlightNode on "graph" nodes 0
+	arrayPut "L1[0,0,{s}]" on "pq" position 1
+	arrayPut "L1[0,0,{s}]" on "labels" position 1
+	highlightArrayCell on "pq" position 1
+}
+{
+	highlightCode on "code" line 5 row 0
+	unhighlightCode on "code" line 4 row 0
+	unhighlightArrayCell on "labels" position 1
+	unhighlightNode on "graph" nodes 0
+}
+{
+	highlightCode on "code" line 6 row 0
+	unhighlightCode on "code" line 5 row 0
+}
+{
+	highlightNode on "graph" nodes 0
+}
+{
+	highlightCode on "code" line 7 row 0
+	unhighlightCode on "code" line 6 row 0
+}
+{
+	highlightEdge on "graph" (0,1)
+}
+{
+	highlightCode on "code" line 8 row 0
+	unhighlightCode on "code" line 7 row 0
+}
+{
+	arrayPut "L2[10,1,{s,a}]" on "newLabelArray" position 1
+	highlightArrayCell on "newLabelArray" position 1
+}
+{
+	highlightCode on "code" line 9 row 0
+	unhighlightCode on "code" line 8 row 0
+}
+{
+	highlightCode on "code" line 10 row 0
+	unhighlightCode on "code" line 9 row 0
+}
+{
+	highlightCode on "code" line 13 row 0
+	unhighlightCode on "code" line 10 row 0
+}
+{
+	highlightNode on "graph" nodes 1
+	unhighlightNode on "graph" nodes 0
+	unhighlightEdge on "graph" (0, 1)
+	arrayPut "L2[10,1,{s,a}]" on "labels" position 5
+	highlightArrayCell on "labels" position 5
+}
+{
+	highlightCode on "code" line 14 row 0
+	unhighlightCode on "code" line 13 row 0
+}
+{
+	highlightCode on "code" line 15 row 0
+	unhighlightCode on "code" line 14 row 0
+}
+{
+	arrayPut "L2[10,1,{s,a}]" on "pq" position 2
+	unhighlightArrayCell on "labels" position 5
+	unhighlightArrayCell on "newLabelArray" position 1
+	arrayPut "              " on "newLabelArray" position 1
+	highlightArrayElem on "pq" from 2 to 2
+}
+{
+	highlightCode on "code" line 7 row 0
+	unhighlightCode on "code" line 15 row 0
+	unhighlightArrayElem on "pq" from 2 to 2
+	unhighlightNode on "graph" nodes 1
+	highlightNode on "graph" nodes 0
+}
+{
+	highlightEdge on "graph" (0, 2)
+}
+{	
+	highlightCode on "code" line 8 row 0
+	unhighlightCode on "code" line 7 row 0
+}
+{
+	arrayPut "L3[15,0,{s,b}]" on "newLabelArray" position 1
+	highlightArrayCell on "newLabelArray" position 1
+}
+{
+	highlightCode on "code" line 9 row 0
+	unhighlightCode on "code" line 8 row 0
+}
+{
+	highlightCode on "code" line 10 row 0
+	unhighlightCode on "code" line 9 row 0
+}
+{
+	highlightCode on "code" line 13 row 0
+	unhighlightCode on "code" line 10 row 0
+}
+{
+	highlightNode on "graph" nodes 2
+	unhighlightNode on "graph" nodes 0
+	unhighlightEdge on "graph" (0, 2)
+	arrayPut "L3[15,0,{s,b}]" on "labels" position 13
+	highlightArrayCell on "labels" position 13
+}
+{
+	highlightCode on "code" line 14 row 0
+	unhighlightCode on "code" line 13 row 0
+}
+{
+	highlightCode on "code" line 15 row 0
+	unhighlightCode on "code" line 14 row 0
+}
+{
+	arrayPut "L3[15,0,{s,b}]" on "pq" position 3
+	unhighlightArrayCell on "labels" position 13
+	unhighlightArrayCell on "newLabelArray" position 1
+	arrayPut "              " on "newLabelArray" position 1
+	highlightArrayElem on "pq" from 3 to 3
+}
+{
+	highlightCode on "code" line 5 row 0
+	unhighlightCode on "code" line 15 row 0
+	unhighlightArrayCell on "labels" position 1
+	unhighlightNode on "graph" nodes 2
+	unhighlightArrayElem on "pq" from 3 to 3
+	arrayPut "" on "pq" position 1
+}
+{
+	unhighlightArrayCell on "pq" position 1
+	arrayPut "L3[15,0,{s,b}]" on "pq" position 2
+	arrayPut "L2[10,1,{s,a}]" on "pq" position 1
+	arrayPut "" on "pq" position 3
+}
+{
 }
