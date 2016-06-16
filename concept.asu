@@ -10,15 +10,22 @@ addCodeLine "" to "listSource"
 addCodeLine "PriorityQueue pq := {};" to "listSource"
 addCodeLine "createStartLabels();" to "listSource"
 addCodeLine "while !pq.isEmpty() do" to "listSource"
-addCodeLine "	Label label := pq.extractLabel();" to "listSource"
-addCodeLine "	foreach outgoing edge e=(v,w) do" to "listSource"
-addCodeLine "		Label newLabel := createLabel(label, e);" to "listSource"
-addCodeLine "		if isDominated(newLabel) then continue;" to "listSource"
-addCodeLine "		if isTerminalReached(newLabel) then" to "listSource"
-addCodeLine "			terminalList.insert(newLabel);" to "listSource"
-addCodeLine "		else" to "listSource"
-addCodeLine "			labelListAt(w).insert(newLabel);" to "listSource"
-addCodeLine "			labelList(w).removeLabelDominatedBy(newLabel);" to "listSource"
-addCodeLine "			pq.insert(newLabel)" to "listSource"
-addCodeLine "filterList(terminalList);" to "listSource"
+addCodeLine "	Label label := pq.extractLabel();" to "listSource" indentation 1
+addCodeLine "	foreach outgoing edge e=(v,w) do" to "listSource" indentation 1
+addCodeLine "		Label newLabel := createLabel(label, e);" to "listSource" indentation 2
+addCodeLine "		if isDominated(newLabel) then continue;" to "listSource" indentation 2
+addCodeLine "		if isTerminalReached(newLabel) then" to "listSource" indentation 2
+addCodeLine "			terminalList.insert(newLabel);" to "listSource" indentation 3
+addCodeLine "		else" to "listSource" indentation 2
+addCodeLine "			labelListAt(w).insert(newLabel);" to "listSource" indentation 3
+addCodeLine "			labelList(w).removeLabelDominatedBy(newLabel);" to "listSource" indentation 3
+addCodeLine "			pq.insert(newLabel)" to "listSource" indentation 3
+addCodeLine "filterList(terminalList);" to "listSource" indentation 0
+array "array" (400, 70)  color (0, 0, 0) fillColor (192, 192, 192) elementColor (0, 0, 0) elemHighlight (0, 255, 0) cellHighlight (255, 200, 0) vertical length 8 "Test1" "Test3" "Test7" "Test5" "Test2" "Test6" "Test8" "Test4"  depth 10 font SansSerif size 12
+}
+
+{
+	 arrayPut "Test" on "array" position 2
+	 highlightArrayCell on "array" position 2
+	 highlightArrayCell on "array" position 3
 }
