@@ -32,6 +32,3 @@ highlightEdge on "graph" (0,1)
 	 highlightArrayCell on "array" position 2
 	 highlightArrayCell on "array" position 3
 }
-
-
-}
