@@ -1,0 +1,380 @@
+%Animal 1.4
+title "Multicriterial Shortest Path Search"
+author "Tim Witzel, Jonas Schlitzer"
+{
+text "title" "Multicriterial Shortest Path Search" (450, 10) centered  color (0, 0, 0) depth 1 size 16 bold
+text "desc" "The multicriterial shortest path search is used to find Pareto optimal paths through a graph, where the edges have weights for multiple criteria." (450, 40) centered  color (0, 0, 0) depth 1 size 14 
+text "desc2" "It is loosely based on Dijkstras Shortest Path Algorithm, but has several adjustments to support more than one search criterion. " (450, 60) centered  color (0, 0, 0) depth 1 size 14
+text "desc3" "Because multiple criteria are used, the algorithm can result in more than one Pareto optimal path." (450, 80) centered  color (0, 0, 0) depth 1 size 14
+}
+{
+hideAll
+show "title"
+codeGroup "code" at (600, 50) color black highlightColor red
+addCodeLine "Input: A timetable graph and a query" to "code"
+addCodeLine "Output: a set of advanced pareto optimal labels at the terminal" to "code"
+addCodeLine "" to "code"
+addCodeLine "PriorityQueue pq := {};" to "code"
+addCodeLine "createStartLabels();" to "code"
+addCodeLine "while !pq.isEmpty() do" to "code"
+addCodeLine "	Label label := pq.extractLabel();" to "code" indentation 1
+addCodeLine "	foreach outgoing edge e=(v,w) do" to "code" indentation 1
+addCodeLine "		Label newLabel := createLabel(label, e);" to "code" indentation 2
+addCodeLine "		if isDominated(newLabel) then" to "code" indentation 2
+addCodeLine "		continue;" to "code" indentation 3
+addCodeLine "		if isTerminalReached(newLabel) then" to "code" indentation 2
+addCodeLine "			terminalList.insert(newLabel);" to "code" indentation 3
+addCodeLine "		else" to "code" indentation 2
+addCodeLine "			labelListAt(w).insert(newLabel);" to "code" indentation 3
+addCodeLine "			labelList(w).removeLabelDominatedBy(newLabel);" to "code" indentation 3
+addCodeLine "			pq.insert(newLabel)" to "code" indentation 3
+addCodeLine "removeDominated(terminalList);" to "code" indentation 0
+
+codeGroup "dominate" at (600, 500) color black highlightColor red
+addCodeLine "bool isDominated(newLabel)" to "dominate" 
+addCodeLine "foreach label in labeListAt(w)" to "dominate" indentation 1
+addCodeLine "	if allOf(label.criteria <= newLabel.criteria)" to "dominate" indentation 2
+addCodeLine "&& oneOf(label.criteria < newLabel.criteria) then" to "dominate" indentation 3
+addCodeLine "return true" to "dominate" indentation 4
+addCodeLine "return false" to "dominate" indentation 1
+
+array "pq" (400, 70)  color (0, 0, 0) fillColor (192, 192, 192) elementColor (0, 0, 0) elemHighlight (0, 171, 17) cellHighlight (255, 200, 0) vertical length 20 "PQ:           " "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" depth 1 font SansSerif size 12
+array "labels" (500, 70)  color (0, 0, 0) fillColor (192, 192, 192) elementColor (0, 0, 0) elemHighlight (200, 0, 0) cellHighlight (255, 200, 0) vertical length 20 "Start:           " "" "" "" "A:" "" "" "" "" "" "" "" "B:" "" "" "" "" "Goal:" "" "" depth 1 font SansSerif size 12
+graph "graph" size 4 bgcolor light Gray outlineColor black highlightColor green2  nodeFontColor black edgeFontColor black directed weighted nodes { "Start" (200, 100), "A" (50,250), "B" (350,250), "Goal" (200, 400)} edges {(0,1, "{10,1} "), (0,2, "{15,0}"), (1,3, "{30,2}") (2,3, "{20, 3} ")}
+array "newLabelArray" (180, 470) color (0, 0, 0) fillColor(192, 192, 192) elementColor (0, 0, 0) elemHighlight (0, 255, 0) cellHighlight (255, 200, 0) horizontal length 2 "newLabel: " "              " depth 1 font SansSerif size 12
+}
+{
+	highlightCode on "code" line 4 row 0  
+}
+{
+	highlightNode on "graph" nodes 0
+	arrayPut "L1[0,0,{s}]" on "pq" position 1
+	arrayPut "L1[0,0,{s}]" on "labels" position 1
+	highlightArrayCell on "pq" position 1
+}
+{
+	unhighlightArrayCell on "pq" position 1
+	highlightCode on "code" line 5 row 0
+	unhighlightCode on "code" line 4 row 0
+	unhighlightArrayCell on "labels" position 1
+	unhighlightNode on "graph" nodes 0
+}
+{
+	
+	highlightCode on "code" line 6 row 0
+	unhighlightCode on "code" line 5 row 0
+}
+{
+	highlightArrayCell on "pq" position 1
+	highlightNode on "graph" nodes 0
+}
+{
+	highlightCode on "code" line 7 row 0
+	unhighlightCode on "code" line 6 row 0
+}
+{
+	highlightEdge on "graph" (0,1)
+}
+{
+	highlightCode on "code" line 8 row 0
+	unhighlightCode on "code" line 7 row 0
+}
+{
+	arrayPut "L2[10,1,{s,a}]" on "newLabelArray" position 1
+	highlightArrayCell on "newLabelArray" position 1
+}
+{
+	highlightCode on "code" line 9 row 0
+	unhighlightCode on "code" line 8 row 0
+}
+//DOMINATE ZEUGS
+{
+	highlightCode on "dominate" line 1 row 0
+}
+{
+
+	highlightArrayCell on "labels" from 4 to 11 
+}
+{
+	unhighlightArrayCell on "labels" from 4 to 11
+	unhighlightCode on "dominate" line 1 row 0 
+	highlightCode on "dominate" line 5 row 0
+}
+{
+	unhighlightCode on "dominate" line 5 row 0
+	highlightCode on "code" line 11 row 0
+	unhighlightCode on "code" line 9 row 0
+}
+//ENDE DOMINATE ZEUGS
+{
+	highlightCode on "code" line 14 row 0
+	unhighlightCode on "code" line 11 row 0
+}
+{
+	highlightNode on "graph" nodes 1
+	unhighlightNode on "graph" nodes 0
+	unhighlightEdge on "graph" (0, 1)
+	arrayPut "L2[10,1,{s,a}]" on "labels" position 5
+	highlightArrayCell on "labels" position 5
+}
+{
+	highlightCode on "code" line 15 row 0
+	unhighlightCode on "code" line 14 row 0
+}
+{
+	highlightCode on "code" line 16 row 0
+	unhighlightCode on "code" line 15 row 0
+}
+{
+	arrayPut "L2[10,1,{s,a}]" on "pq" position 2
+	unhighlightArrayCell on "labels" position 5
+	unhighlightArrayCell on "newLabelArray" position 1
+	arrayPut "              " on "newLabelArray" position 1
+	highlightArrayElem on "pq" from 2 to 2
+}
+//ANFANG FOREACH
+{
+	highlightCode on "code" line 7 row 0
+	unhighlightCode on "code" line 16 row 0
+	unhighlightArrayElem on "pq" from 2 to 2
+	unhighlightNode on "graph" nodes 1
+	highlightNode on "graph" nodes 0
+}
+{
+	highlightEdge on "graph" (0, 2)
+}
+{	
+	highlightCode on "code" line 8 row 0
+	unhighlightCode on "code" line 7 row 0
+}
+{
+	arrayPut "L3[15,0,{s,b}]" on "newLabelArray" position 1
+	highlightArrayCell on "newLabelArray" position 1
+}
+{
+	highlightCode on "code" line 9 row 0
+	unhighlightCode on "code" line 8 row 0
+}
+{
+	highlightCode on "dominate" line 1 row 0
+}
+{
+
+	highlightArrayCell on "labels" from 12 to 16 
+}
+{
+	unhighlightArrayCell on "labels" from 12 to 16
+	unhighlightCode on "dominate" line 1 row 0 
+	highlightCode on "dominate" line 5 row 0
+}
+{
+	unhighlightCode on "dominate" line 5 row 0
+	highlightCode on "code" line 11 row 0
+	unhighlightCode on "code" line 9 row 0
+}
+{
+	highlightCode on "code" line 14 row 0
+	unhighlightCode on "code" line 11 row 0
+}
+{
+	highlightNode on "graph" nodes 2
+	unhighlightNode on "graph" nodes 0
+	unhighlightEdge on "graph" (0, 2)
+	arrayPut "L3[15,0,{s,b}]" on "labels" position 13
+	highlightArrayCell on "labels" position 13
+}
+{
+	highlightCode on "code" line 15 row 0
+	unhighlightCode on "code" line 14 row 0
+}
+{
+	highlightCode on "code" line 16 row 0
+	unhighlightCode on "code" line 15 row 0
+}
+{
+	arrayPut "L3[15,0,{s,b}]" on "pq" position 3
+	unhighlightArrayCell on "labels" position 13
+	unhighlightArrayCell on "newLabelArray" position 1
+	arrayPut "              " on "newLabelArray" position 1
+	highlightArrayElem on "pq" from 3 to 3
+}
+{
+	highlightCode on "code" line 5 row 0
+	unhighlightCode on "code" line 16 row 0
+	unhighlightArrayCell on "labels" position 1
+	unhighlightNode on "graph" nodes 2
+	unhighlightArrayElem on "pq" from 3 to 3
+	arrayPut "" on "pq" position 1
+}
+{
+	unhighlightArrayCell on "pq" position 1
+	arrayPut "L3[15,0,{s,b}]" on "pq" position 2
+	arrayPut "L2[10,1,{s,a}]" on "pq" position 1
+	arrayPut "" on "pq" position 3
+}
+//WHILE ENDE
+{
+	unhighlightCode on "code" line 5 row 0
+	highlightCode on "code" line 6 row 0
+}
+{
+	highlightArrayCell on "pq" position 1 	
+}
+{
+	unhighlightCode on "code" line 6 row 0
+	highlightCode on "code" line 7 row 0
+	unhighlightCode on "code" line 16 row 0
+	unhighlightArrayElem on "pq" from 2 to 2
+	highlightNode on "graph" nodes 1
+}
+{
+	highlightEdge on "graph" (1, 3)
+}
+{	
+	highlightCode on "code" line 8 row 0
+	unhighlightCode on "code" line 7 row 0
+}
+{
+	arrayPut "L4[40,3,{s,a,g}]" on "newLabelArray" position 1
+	highlightArrayCell on "newLabelArray" position 1
+}
+{
+	highlightCode on "code" line 9 row 0
+	unhighlightCode on "code" line 8 row 0
+}
+{
+	highlightCode on "dominate" line 1 row 0
+}
+{
+
+	highlightArrayCell on "labels" from 17 to 19 
+}
+{
+	unhighlightArrayCell on "labels" from 17 to 19
+	unhighlightCode on "dominate" line 1 row 0 
+	highlightCode on "dominate" line 5 row 0
+}
+{
+	unhighlightCode on "dominate" line 5 row 0
+	highlightCode on "code" line 11 row 0
+	unhighlightCode on "code" line 9 row 0
+}
+{
+	highlightCode on "code" line 12 row 0 
+	unhighlightCode on "code" line 11 row 0 	
+}
+{
+	arrayPut "L4[40,3,{s,a,g}]" on "labels" position 18
+	highlightArrayCell on "labels" position 18
+	arrayPut "              " on "newLabelArray" position 1
+	unhighlightArrayCell on "newLabelArray" position 1
+}
+{
+	unhighlightNode on "graph" nodes 1 
+	unhighlightEdge on "graph" (1,3)
+	unhighlightArrayCell on "labels" position 18
+	unhighlightArrayCell on "pq" position 1
+	arrayPut "L3[15,0,{s,b}]" on "pq" position 1
+	arrayPut "" on "pq" position 2
+	arrayPut "" on "pq" position 3
+}
+
+{
+	unhighlightCode on "code" line 12 row 0
+	highlightCode on "code" line 5 row 0
+}
+{
+	highlightCode on "code" line 6 row 0
+	unhighlightCode on "code" line 5 row 0
+}
+{
+	highlightArrayCell on "pq" position 1 	
+}
+{
+	unhighlightCode on "code" line 6 row 0
+	highlightCode on "code" line 7 row 0
+	unhighlightCode on "code" line 16 row 0
+	unhighlightArrayElem on "pq" from 2 to 2
+	highlightNode on "graph" nodes 2
+}
+{
+	highlightEdge on "graph" (2, 3)
+}
+{	
+	highlightCode on "code" line 8 row 0
+	unhighlightCode on "code" line 7 row 0
+}
+{
+	arrayPut "L5[35,3,{s,b,g}]" on "newLabelArray" position 1
+	highlightArrayCell on "newLabelArray" position 1
+}
+{
+	highlightCode on "code" line 9 row 0
+	unhighlightCode on "code" line 8 row 0
+}
+{
+	highlightCode on "dominate" line 1 row 0
+}
+{
+
+	highlightArrayCell on "labels" from 17 to 19 
+}
+{
+	unhighlightCode on "dominate" line 1 row 0
+	highlightCode on "dominate" line 2 row 0 
+	highlightCode on "dominate" line 3 row 0 
+}
+{
+	unhighlightArrayCell on "labels" from 17 to 19
+	unhighlightCode on "dominate" line 2 row 0 
+	unhighlightCode on "dominate" line 3 row 0 
+	highlightCode on "dominate" line 5 row 0
+}
+{
+	unhighlightCode on "dominate" line 5 row 0
+	highlightCode on "code" line 11 row 0
+	unhighlightCode on "code" line 9 row 0
+}
+{
+	highlightCode on "code" line 12 row 0 
+	unhighlightCode on "code" line 11 row 0 	
+}
+{
+	arrayPut "L5[35,3,{s,b,g}]" on "labels" position 19
+	arrayPut "              " on "newLabelArray" position 1
+	unhighlightArrayCell on "newLabelArray" position 1
+	highlightArrayCell on "labels" position 19
+}
+{
+	unhighlightArrayCell on "pq" position 1
+	arrayPut "PQ:                   " on "pq" position 0
+	arrayPut "" on "pq" position 1
+}
+{
+	unhighlightNode on "graph" nodes 2
+	unhighlightEdge on "graph" (2,3)
+	highlightNode on "graph" nodes 3
+	unhighlightArrayCell on "labels" position 19
+	unhighlightCode on "code" line 12 row 0
+	highlightCode on "code" line 17 row 0
+}
+{
+	highlightArrayCell on "labels" from 17 to 19
+}
+{
+	highlightArrayElem on "labels" from 18 to 18
+}
+{
+	arrayPut "L5[35,3,{s,b,g}]" on "labels" position 18
+	arrayPut "" on "labels" position 19
+	unhighlightArrayElem on "labels" from 18 to 18
+	unhighlightArrayCell on "labels" from 17 to 19
+	highlightArrayCell on "labels" from 18 to 18
+}
+{
+hideAll
+show "title"
+text "end" "Pareto Optimal Paths: L5 with {35,3} from start to goal over a." (450, 40) centered  color (0, 0, 0) depth 1 size 14 
+text "end2" "L5 {35,3} dominates L4 {40,3} at the terminal node, because it is better in the first criterion and not worse in the second." (450, 60) centered  color (0, 0, 0) depth 1 size 14 
+text "end3" "If L4 would have been {40,2}, both paths would have been Pareto optimal, because neither of them can dominate the other one." (450, 80) centered  color (0, 0, 0) depth 1 size 14 
+}
