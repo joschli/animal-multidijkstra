@@ -4,6 +4,7 @@ import java.awt.Color;
 import java.awt.Font;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.PriorityQueue;
@@ -25,6 +26,7 @@ import algoanim.util.Node;
 
 public class ShortestPathSearch {
 
+	private static final int MAXLABELLENGTH = 13;
 	private Language language;
 	private Text header;
 	private SourceCode src;
@@ -32,9 +34,10 @@ public class ShortestPathSearch {
 	private SourceCodeProperties sourceCodeProps;
 	private Graph graph;
 	private StringArray pq;
-	private StringArray labels;
-	private StringArray newLabel;
+	private NodeLabelList labels;
+	private StringArray newLabelArray;
 	private Queue<Label> queue = new PriorityQueue<>();
+	private HashMap<Integer, List<Edge>> graphEdges;
 	private HashMap<Integer, List<Label>> nodeLabels = new HashMap<>();
 	private List<Label> terminalList = new ArrayList<>();
 
@@ -43,6 +46,8 @@ public class ShortestPathSearch {
 	public ShortestPathSearch(Language lang) {
 		this.language = lang;
 		this.language.setStepMode(true);
+		graphEdges = new HashMap<Integer, List<Edge>>();
+		nodeLabels = new HashMap<Integer, List<Label>>();
 	}
 
 	public void start() {
@@ -53,50 +58,258 @@ public class ShortestPathSearch {
 	}
 
 	private void showAlgorithm() {
-
+		findShortestSolution(0, 3);
 	}
 
-	private void findShortestSolution(HashMap<Integer, List<Edge>> graph, int start, int target) {
-		for (int i = 0; i < graph.size(); i++) {
+	private void findShortestSolution(int start, int target) {
+		for (int i = 0; i < graphEdges.size(); i++) {
 			nodeLabels.put(i, new ArrayList<Label>());
 		}
+		int labelIndex = 0;
+		//Highlight Start Code
+		src.highlight(3);
+		language.nextStep();
+		src.unhighlight(3);
+		src.highlight(4); //Create Start Labels
+		language.nextStep();
+		//Create Start Labels
 		Label startLabel = new Label(start, 0, 0);
 		queue.add(startLabel);
 		nodeLabels.put(start, Arrays.asList(startLabel));
+		//Create Start Labels Animation
+		pq.highlightCell(1, 1, null, null);
+		labels.highlightCell(1, 1, null, null);
+		String labelStr = "L" + labelIndex + ":[0,0,(" + graph.getNodeLabel(start) + ")]";
+		labelIndex++;
+		pq.put(1,labelStr , null, null);
+		labels.addLabelToNodeList(labelStr, graph.getNodeLabel(start));
+		language.nextStep();
+		//Queue Highlight
+		unhighlightEverything();
+		src.highlight(5);
+		language.nextStep();
+		
 		while (!queue.isEmpty()) {
+			//Queue Poll Animation
+			unhighlightEverything();
+			src.highlight(6);
+			language.nextStep();
+			pq.highlightCell(1, null, null);
+			language.nextStep();
+			//Queue Poll
 			Label label = queue.poll();
-			for (Edge e : graph.get(label.node)) {
+			unhighlightSource(src);
+			src.highlight(7);
+			language.nextStep();
+			graph.highlightNode(label.node, null, null);
+			language.nextStep();
+			
+			for (Edge e : graphEdges.get(label.node)) {
+				//For Each Animation
+				unhighlightSource(src);
+				src.highlight(7);
+				//HighlightEdge
+				graph.highlightEdge(e.start, e.end, null,null);
+				graph.setEdgeHighlightTextColor(e.start, e.end, Color.BLACK, null, null);
+				language.nextStep();
+				
 				Label newLabel = new Label(label, e);
+				//New Label Creation
+				unhighlightSource(src);
+				src.highlight(8);
+				language.nextStep();
+				labelStr = createLabelString(labelIndex, newLabel);
+				labelIndex++;
+				newLabelArray.put(1, labelStr, null, null);
+				newLabelArray.highlightCell(1, null, null);
+				language.nextStep();
+				//Dominate Highlight
+				src.unhighlight(8);
+				src.highlight(9);
+				language.nextStep();
+				
 				if (isDominated(newLabel)) {
+					//Continue Highligh und Clear
+					src.unhighlight(9);
+					src.highlight(10);
+					language.nextStep();
+					graph.unhighlightEdge(e.start, e.end, null, null);
+					language.nextStep();
 					continue;
 				}
+				//Is Terminal Reached
+				src.unhighlight(9);
+				src.highlight(11);
+				language.nextStep();
+				
 				if (newLabel.node == target) {
+					//Insert in Terminal List
+					src.unhighlight(11);
+					src.highlight(12);
+					language.nextStep();
+					labels.addLabelToNodeList(labelStr, graph.getNodeLabel(target));
+					labels.highlightLastAdded(graph.getNodeLabel(target));
+					language.nextStep();
+					
 					terminalList.add(newLabel);
+					nodeLabels.get(newLabel.node).add(newLabel);
 				} else {
+					src.unhighlight(11);
+					src.highlight(14);
+					language.nextStep();
+					
 					nodeLabels.get(newLabel.node).removeIf(x -> {
+						if(dominates(newLabel, x)){							
+							labels.remove(nodeLabels.get(newLabel.node).indexOf(x), graph.getNodeLabel(newLabel.node), language);
+						}
 						return dominates(newLabel, x);
 					});
+					
+					//Adding Animation
+					src.unhighlight(14);
+					src.highlight(15);
+					language.nextStep();
+					labels.addLabelToNodeList(labelStr, graph.getNodeLabel(newLabel.node));
+					labels.highlightLastAdded(graph.getNodeLabel(newLabel.node));
+					language.nextStep();
+					labels.unhighlightAll();
+					
 					nodeLabels.get(newLabel.node).add(newLabel);
+					
+					//PQ Add Animation
+					src.unhighlight(15);
+					src.highlight(16);
+					language.nextStep();
+					addToPq(labelStr);
+					
 					queue.add(newLabel);
+					
+					//Cleaning up
+					src.unhighlight(16);
+					language.nextStep();
 				}
+				//Cleaning up
+				graph.unhighlightEdge(e.start, e.end, null,null);
+				newLabelArray.put(1, "          ", null, null);
+				newLabelArray.unhighlightCell(1, null, null);
+				language.nextStep();
 			}
+			//Cleaning up
+			graph.unhighlightNode(label.node, null, null);
+			language.nextStep();
+			//Extract from Queue
+			extractFromPq();
+			pq.unhighlightCell(1, null, null);
+			unhighlightEverything();
+			language.nextStep();
 		}
+		
+		src.highlight(17);
+		language.nextStep();
+		
 		terminalList.removeIf(x -> {
 			for (Label l : terminalList) {
 				if (dominates(l, x)) {
+					labels.remove(terminalList.indexOf(x), graph.getNodeLabel(target), language);
 					return true;
 				}
 			}
 			return false;
 		});
+		src.unhighlight(17);
+		labels.highlightNodeList(graph.getNodeLabel(target));
+		language.nextStep();
+	}
+	
+	private void extractFromPq() {
+		for(int i = 1; i < pq.getLength()-1; i++){
+			pq.put(i, pq.getData(i+1), null, null);
+		}
+	}
+
+	private void addToPq(String labelStr) {
+		for(int i = 0; i < pq.getLength(); i++){
+			if(pq.getData(i).equals("")){
+				pq.put(i, labelStr, null, null);
+				pq.highlightCell(i, null, null);
+				language.nextStep();
+				pq.unhighlightCell(i, null, null);
+				break;
+			}
+		}
+	}
+
+	private String createLabelString(int labelIndex, Label newLabel){
+		String labelStr = "";
+		String path = "";
+		Label l = newLabel;
+		while(l != null){
+			path = path + graph.getNodeLabel(l.node) + ",";
+			l = l.prev;
+		}
+		path = path.substring(0, path.length()-1);
+		labelStr = "L" + labelIndex + ":[" + newLabel.weights[0] + "," + newLabel.weights[1] + ",(" + path + ")]";
+		labelStr = labelStr.length() > MAXLABELLENGTH ? labelStr.substring(0, MAXLABELLENGTH) + "..." : labelStr;
+		return labelStr;
+	}
+	
+	private void unhighlightEverything(){
+		unhighlightArray(pq);
+		labels.unhighlightAll();
+		unhighlightArray(newLabelArray);
+		unhighlightSource(src);
+		unhighlightSource(dominatedSrc);
+	}
+
+	private void unhighlightArray(StringArray array){
+		for(int i = 0; i < array.getLength(); i++){
+			array.unhighlightCell(i, null, null);
+		}
+	}
+	
+	private void unhighlightSource(SourceCode code){
+		for(int i = 0; i < code.length(); i++){
+			code.unhighlight(i);
+		}
 	}
 
 	private boolean isDominated(Label newLabel) {
-		for (Label l : nodeLabels.get(newLabel.node)) {
-			if (dominates(l, newLabel)) {
-				return true;
+		//Code Highlight
+		dominatedSrc.highlight(0);
+		language.nextStep();
+		dominatedSrc.unhighlight(0);
+		dominatedSrc.highlight(1);
+		language.nextStep();
+		labels.highlightNodeList(graph.getNodeLabel(newLabel.node));
+		language.nextStep();
+		
+		if(nodeLabels.get(newLabel.node) != null){
+			for (Label l : nodeLabels.get(newLabel.node)) {
+				//HighlightFurtherCode
+				dominatedSrc.unhighlight(1);
+				dominatedSrc.highlight(2);
+				dominatedSrc.highlight(3);
+				language.nextStep();
+				
+				if (dominates(l, newLabel)) {
+
+					dominatedSrc.unhighlight(2);
+					dominatedSrc.unhighlight(3);
+					dominatedSrc.highlight(4);
+					language.nextStep();
+					dominatedSrc.unhighlight(4);
+					language.nextStep();
+					return true;
+				}
 			}
 		}
+		//Unhighlight
+		unhighlightSource(dominatedSrc);
+		dominatedSrc.highlight(5);
+		language.nextStep();
+		unhighlightSource(dominatedSrc);
+		labels.unhighlightAll();
+		language.nextStep();
 		return false;
 	}
 
@@ -105,6 +318,11 @@ public class ShortestPathSearch {
 				&& (l1.weights[0] < l2.weights[0] || l1.weights[1] < l2.weights[1]);
 	}
 
+	
+	
+	
+	
+	
 	public void showIntroduction() {
 		TextProperties headerProps = new TextProperties();
 		headerProps.set(AnimationPropertiesKeys.FONT_PROPERTY, new Font(Font.SANS_SERIF, Font.BOLD, 16));
@@ -127,7 +345,7 @@ public class ShortestPathSearch {
 		language.hideAllPrimitives();
 		labels.hide();
 		graph.hide();
-		newLabel.hide();
+		newLabelArray.hide();
 		pq.hide();
 		dominatedSrc.hide();
 		header.show();
@@ -157,8 +375,8 @@ public class ShortestPathSearch {
 		src.addCodeLine("if isTerminalReached(newLabel) then", "code", 2, null);
 		src.addCodeLine("terminalList.insert(newLabel);", "code", 3, null);
 		src.addCodeLine("else", "code", 2, null);
-		src.addCodeLine("labelListAt(w).insert(newLabel);", "code", 3, null);
 		src.addCodeLine("labelList(w).removeLabelDominatedBy(newLabel);", "code", 3, null);
+		src.addCodeLine("labelListAt(w).insert(newLabel);", "code", 3, null);
 		src.addCodeLine("pq.insert(newLabel);", "code", 3, null);
 		src.addCodeLine("removeDominated(terminalList);", "code", 0, null);
 		src.show();
@@ -185,47 +403,53 @@ public class ShortestPathSearch {
 			queue[i] = "";
 		}
 		queue[0] = "PQ:            ";
-		String[] labelStrings = { "Start:           ", "", "", "", "A:", "", "", "", "", "", "", "", "B:", "", "", "",
-				"", "Goal:", "", "" };
 		ArrayProperties opt = new ArrayProperties();
 		ArrayProperties optLabel = new ArrayProperties();
 		setArrayProperties(optLabel);
+		optLabel.set(AnimationPropertiesKeys.DIRECTION_PROPERTY, false);
 		setArrayProperties(opt);
 		opt.set(AnimationPropertiesKeys.DIRECTION_PROPERTY, true);
 		pq = language.newStringArray(new Coordinates(400, 70), queue, "pq", null, opt);
-		labels = language.newStringArray(new Coordinates(500, 70), labelStrings, "labels", null, opt);
-		newLabel = language.newStringArray(new Coordinates(180, 470), new String[] { "newLabel: ", "               " },
+		labels = new NodeLabelList(language.newStringArray(new Coordinates(500, 70), new String[20], "labels", null, opt), graph, 3);
+		newLabelArray = language.newStringArray(new Coordinates(180, 470), new String[] { "newLabel: ", "               " },
 				"newLabel", null, optLabel);
 		pq.put(2, "", null, null);
-		labels.put(2, "", null, null);
 		pq.showIndices(false, null, null);
 		labels.showIndices(false, null, null);
-		newLabel.showIndices(false, null, null);
+		newLabelArray.showIndices(false, null, null);
 		labels.show();
-		newLabel.show();
+		newLabelArray.show();
 		pq.show();
 	}
 
 	private void setArrayProperties(ArrayProperties opt) {
-		opt.set("fillColor", new Color(192, 192, 192));
-		opt.set("elementColor", new Color(0, 0, 0));
-		opt.set("elemHighlight", new Color(0, 171, 17));
+		opt.set("fillColor", Color.GRAY);
+		opt.set("elementColor", Color.WHITE);
+		opt.set(AnimationPropertiesKeys.ELEMHIGHLIGHT_PROPERTY, Color.WHITE);
+		opt.set(AnimationPropertiesKeys.CELLHIGHLIGHT_PROPERTY, new Color(120,30,0));
 		opt.set("filled", false);
 		opt.set(AnimationPropertiesKeys.DIRECTION_PROPERTY, true);
 		opt.set("font", new Font(Font.SANS_SERIF, Font.PLAIN, 12));
 	}
 
 	public void showGraph() {
-		int[][] nodes = { { 0, 10, 15, 0 }, { 1, 0, 0, 30 }, { 0, 0, 0, 20 }, { 0, 2, 3, 0 } };
+		int[][] nodes = { { 0, 10, 15, 0 }, { 0, 0, 0, 30 }, { 0, 0, 0, 20 }, { 0, 0, 0, 0 } };
 		Node[] graphNodes = { new Coordinates(200, 100), new Coordinates(50, 250), new Coordinates(350, 250),
 				new Coordinates(200, 400) };
 		GraphProperties prop = new GraphProperties();
-		prop.set("directed", false);
-		prop.set("nodeColor", Color.RED);
-		prop.set("fillColor", Color.PINK);
+		prop.set("directed", true);
+		prop.set("nodeColor", Color.WHITE);
+		prop.set("fillColor", Color.GRAY);
+		prop.set(AnimationPropertiesKeys.ELEMHIGHLIGHT_PROPERTY, Color.WHITE);
+		prop.set(AnimationPropertiesKeys.HIGHLIGHTCOLOR_PROPERTY, new Color(139,0,0));
 		prop.set("weighted", true);
 		graph = language.newGraph("Test", nodes, graphNodes, new String[] { "Start", "A", "B", "Goal" }, null, prop);
 		graph.show();
+		graphEdges = new HashMap<Integer, List<Edge>>();
+		graphEdges.put(0, Arrays.asList(new Edge(0,1, 15, 2), new Edge(0,2, 20, 1)));
+		graphEdges.put(1, Arrays.asList(new Edge(1,3,30, 2 )));
+		graphEdges.put(2, Arrays.asList(new Edge(2,3, 20, 3)));
+		graphEdges.put(3, Collections.emptyList());
 	}
 
 	private class Edge {
@@ -245,8 +469,9 @@ public class ShortestPathSearch {
 		}
 	}
 
-	private class Label {
+	private class Label implements Comparable<Label> {
 		public Label(int node, int weight1, int weight2) {
+			this.prev = null;
 			this.node = node;
 			this.weights[0] = weight1;
 			this.weights[1] = weight2;
@@ -254,12 +479,22 @@ public class ShortestPathSearch {
 
 		public Label(Label prev, Edge next) {
 			this.node = next.end;
+			this.prev = prev;
 			this.weights[0] = prev.weights[0] + next.weights[0];
 			this.weights[1] = prev.weights[1] + next.weights[1];
 		}
 
 		public int node;
+		public Label prev;
 		public int[] weights = new int[2];
+		
+		@Override
+		public int compareTo(Label o) {
+			
+			return Integer.compare(weights[0], o.weights[0]);
+		}
+		
+		
 	}
 
 	public static void main(String[] args) {
