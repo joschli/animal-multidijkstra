@@ -1,0 +1,3 @@
+Offsets komisch zwischen Linux/Windows etc
+Crash bei unvollständigem Script (Aufgehangen)
+Keine guten Listen, die erweiterbar sind (nur feste Arrays)

@@ -1,6 +1,7 @@
 package algoviz;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import algoanim.primitives.Graph;
@@ -13,7 +14,7 @@ public class NodeLabelList {
 	private List<String> nodes;
 	private List<Integer> indices;
 	
-	public NodeLabelList(StringArray array, Graph graph, int target){
+	public NodeLabelList(StringArray array, Graph graph){
 		this.array = array;
 		this.nodes = new ArrayList<String> ();
 		this.indices = new ArrayList<Integer>();
@@ -21,6 +22,9 @@ public class NodeLabelList {
 			String nodeString = graph.getNodeLabel(i);
 			nodes.add(nodeString);
 			indices.add(i*2);
+		}
+		if( nodes.indexOf(graph.getNodeLabel(graph.getTargetNode())) != nodes.size()-1 ){
+			Collections.swap(nodes, nodes.size()-1, nodes.indexOf(graph.getNodeLabel(graph.getTargetNode())));
 		}
 		for(int k = 0; k < array.getLength(); k++){
 			array.put(k, "", null, null);
@@ -110,6 +114,8 @@ public class NodeLabelList {
 	public void put(int i, String string, Object object, Object object2) {
 		array.put(i, string, null, null);
 	}
+
+
 
 	
 	
