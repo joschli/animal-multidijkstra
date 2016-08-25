@@ -1,4 +1,4 @@
-package algoviz;
+package generators.graph;
 
 import java.awt.Color;
 import java.awt.Font;
@@ -527,24 +527,6 @@ public class ShortestPathSearch {
 	}
 
 	public static void main(String[] args) {
-		Language lang = Language.getLanguageInstance(AnimationType.ANIMALSCRIPT, "Shortest Multicriteria Path Search",
-				"Tim Witzel, Jonas Schlitzer", 800, 600);
 		
-		//Changeable Graph
-		//First and second Weight of Edges, two weights of zero mean no edge
-		int[][] edgeweights1 = { { 0, 10, 15, 0, 21 }, { 0, 0, 0, 30 , 10  }, { 0, 0, 0, 20, 0 }, { 0, 0, 0, 0,0 }, { 0, 0, 10, 10,0 }  };
-		int[][] edgeweights2 = { { 0, 2, 1, 0 ,1 }, { 0, 0, 0, 3 , 1 }, { 0, 0, 0, 2 ,0 }, { 0, 0, 0, 0,0 }, { 0, 0, 2, 4,0 }  };
-		//Coordinates of graphNodes
-		Coordinates[] graphNodes= { new Coordinates(300, 100), new Coordinates(50, 300), new Coordinates(500, 300),
-				new Coordinates(300, 600), new Coordinates(300, 300) };
-		//Labels of graph Nodes
-		String[] nodeLabels =  new String[] { "Start", "A", "B", "Goal", "C" };
-		//Startindex of the search
-		int startIndex = 0;
-		//Targetindex of the search
-		int targetIndex = 3;
-		
-		new ShortestPathSearch(lang).start(edgeweights1, edgeweights2, graphNodes, nodeLabels, startIndex, targetIndex);
-		System.out.println(lang);
 	}
 }

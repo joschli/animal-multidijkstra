@@ -39,6 +39,8 @@ public class DummyGenerator implements GeneratorBundle {
   @Override
   public Vector<Generator> getGenerators() {
     Vector<Generator> generators = new Vector<Generator>(35, 15);
+    generators.add(new Multicriteria());
+    
     generators.add(new AnnotatedRingGenerator());
     generators.add(new BellmanFord());
     generators.add(new Kruskal());

@@ -8,11 +8,14 @@ package generators.graph;
 import generators.framework.Generator;
 import generators.framework.GeneratorType;
 import java.util.Locale;
+
+import algoanim.primitives.generators.AnimationType;
 import algoanim.primitives.generators.Language;
 import java.util.Hashtable;
 import generators.framework.properties.AnimationPropertiesContainer;
 import algoanim.animalscript.AnimalScript;
 import algoanim.properties.ArrayProperties;
+import algoanim.util.Coordinates;
 
 public class Multicriteria implements Generator {
     private Language lang;
@@ -26,7 +29,22 @@ public class Multicriteria implements Generator {
     public String generate(AnimationPropertiesContainer props,Hashtable<String, Object> primitives) {
         ArrayProperties = (ArrayProperties)props.getPropertiesByName("ArrayProperties");
         graph = (String)primitives.get("graph");
-        
+        		
+		//Changeable Graph
+		//First and second Weight of Edges, two weights of zero mean no edge
+		int[][] edgeweights1 = { { 0, 10, 15, 0, 21 }, { 0, 0, 0, 30 , 10  }, { 0, 0, 0, 20, 0 }, { 0, 0, 0, 0,0 }, { 0, 0, 10, 10,0 }  };
+		int[][] edgeweights2 = { { 0, 2, 1, 0 ,1 }, { 0, 0, 0, 3 , 1 }, { 0, 0, 0, 2 ,0 }, { 0, 0, 0, 0,0 }, { 0, 0, 2, 4,0 }  };
+		//Coordinates of graphNodes
+		Coordinates[] graphNodes= { new Coordinates(300, 100), new Coordinates(50, 300), new Coordinates(500, 300),
+				new Coordinates(300, 600), new Coordinates(300, 300) };
+		//Labels of graph Nodes
+		String[] nodeLabels =  new String[] { "Start", "A", "B", "Goal", "C" };
+		//Startindex of the search
+		int startIndex = 0;
+		//Targetindex of the search
+		int targetIndex = 3;
+		
+		new ShortestPathSearch(lang).start(edgeweights1, edgeweights2, graphNodes, nodeLabels, startIndex, targetIndex);
         return lang.toString();
     }
 

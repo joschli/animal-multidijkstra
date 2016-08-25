@@ -1,4 +1,4 @@
-package algoviz;
+package generators.graph;
 
 
 import java.awt.Color;
