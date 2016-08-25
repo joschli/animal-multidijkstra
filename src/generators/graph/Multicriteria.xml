@@ -5,13 +5,13 @@
 			<AnimationPropertyItem type="ColorPropertyItem">
 				<name>fillColor</name>
 				<isEditable value="true" />
-				<label>Fill Color</label>
+				<label>Fill color</label>
 				<value><Color>(128, 128, 128)</Color></value>
 			</AnimationPropertyItem>
 			<AnimationPropertyItem type="ColorPropertyItem">
 				<name>cellHighlight</name>
 				<isEditable value="true" />
-				<label>CellHighlight</label>
+				<label>Cell highlight</label>
 				<value><Color>(120, 30, 0)</Color></value>
 			</AnimationPropertyItem>
 			<AnimationPropertyItem type="IntegerPropertyItem">
@@ -22,8 +22,8 @@
 			</AnimationPropertyItem>
 			<AnimationPropertyItem type="ColorPropertyItem">
 				<name>color</name>
-				<isEditable value="true" />
-				<label>TextColor</label>
+				<isEditable value="false" />
+				<label></label>
 				<value><Color>(255, 255, 255)</Color></value>
 			</AnimationPropertyItem>
 			<AnimationPropertyItem type="BooleanPropertyItem">
@@ -36,7 +36,7 @@
 				<name>name</name>
 				<isEditable value="true" />
 				<label></label>
-				<value><String>ArrayProperties</String></value>
+				<value><String>Array Properties</String></value>
 			</AnimationPropertyItem>
 			<AnimationPropertyItem type="BooleanPropertyItem">
 				<name>filled</name>
@@ -52,8 +52,8 @@
 			</AnimationPropertyItem>
 			<AnimationPropertyItem type="ColorPropertyItem">
 				<name>elementColor</name>
-				<isEditable value="true" />
-				<label>ElementColor</label>
+				<isEditable value="false" />
+				<label>Text color</label>
 				<value><Color>(255, 255, 255)</Color></value>
 			</AnimationPropertyItem>
 			<AnimationPropertyItem type="BooleanPropertyItem">
@@ -66,19 +66,26 @@
 				<name>font</name>
 				<isEditable value="false" />
 				<label></label>
-				<value><Font>SansSerif</Font></value>
+				<value><Font>Monospaced</Font></value>
 			</AnimationPropertyItem>
 			<AnimationPropertyItem type="ColorPropertyItem">
 				<name>elemHighlight</name>
 				<isEditable value="true" />
-				<label>ElementHighlight</label>
+				<label>Element Highlight</label>
 				<value><Color>(255, 255, 255)</Color></value>
 			</AnimationPropertyItem>
 		</AnimationProperties>
-		<Primitive type="Graph">
-			<name>graph</name>
-			<value><Graph>%graphscript
-</Graph></value>
+		<Primitive type="StringArray">
+			<name>Nodes (N, X, Y)</name>
+			<value><StringArray>(A, 300, 100), (B, 50, 300), (C, 500, 300), (D, 300, 600), (E, 300, 300)</StringArray></value>
+		</Primitive>
+		<Primitive type="StringArray">
+			<name>Edges (From, To, Weight1, Weight2)</name>
+			<value><StringArray>(A, B, 10, 2) , (A, C, 21, 1), (A, D, 15, 1), (B, C, 10, 1), (B, E, 30, 3), (C, E, 10, 4), (C, D, 10, 2), (D, E, 20, 2)</StringArray></value>
+		</Primitive>
+		<Primitive type="String">
+			<name>Query (From, To)</name>
+			<value><String>(A, E)</String></value>
 		</Primitive>
 	</Folder>
 </PropertiesTreeModel>
