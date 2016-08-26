@@ -4,7 +4,6 @@ import java.awt.Color;
 import java.awt.Font;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.PriorityQueue;
@@ -12,14 +11,16 @@ import java.util.Queue;
 import java.util.stream.Collectors;
 
 import algoanim.animalscript.addons.InfoBox;
+import algoanim.counter.enumeration.ControllerEnum;
+import algoanim.counter.view.TwoValueView;
 import algoanim.primitives.Graph;
 import algoanim.primitives.SourceCode;
 import algoanim.primitives.StringArray;
 import algoanim.primitives.Text;
-import algoanim.primitives.generators.AnimationType;
 import algoanim.primitives.generators.Language;
 import algoanim.properties.AnimationPropertiesKeys;
 import algoanim.properties.ArrayProperties;
+import algoanim.properties.CounterProperties;
 import algoanim.properties.GraphProperties;
 import algoanim.properties.SourceCodeProperties;
 import algoanim.properties.TextProperties;
@@ -28,9 +29,10 @@ import algoanim.util.Node;
 
 public class ShortestPathSearch {
 
-	private static int MAXLABELLENGTH = 17;
+	private static int MAXLABELLENGTH = 14;
 	private Language language;
 	private Text header;
+	private Text header2;
 	private SourceCode src;
 	private SourceCode dominatedSrc;
 	private SourceCodeProperties sourceCodeProps;
@@ -42,7 +44,10 @@ public class ShortestPathSearch {
 	private HashMap<Integer, List<Edge>> graphEdges;
 	private HashMap<Integer, List<Label>> nodeLabels = new HashMap<>();
 	private List<Label> terminalList = new ArrayList<>();
-
+	private ArrayProperties arrayProps;
+	private TwoValueView counter;
+	private int createdLabels;
+	private int dominatedLabels;
 	List<Edge> edges = new ArrayList<>();
 
 	public ShortestPathSearch(Language lang) {
@@ -52,7 +57,9 @@ public class ShortestPathSearch {
 		nodeLabels = new HashMap<Integer, List<Label>>();
 	}
 
-	public void start(int[][] edgeweights1, int[][] edgeweights2, Coordinates[] graphNodes, String[] nodeLabels, int start, int target) {
+	public void start(int[][] edgeweights1, int[][] edgeweights2, Coordinates[] graphNodes, String[] nodeLabels, int start, int target, ArrayProperties props) {
+		arrayProps = props;
+		Util.setGraphColors(props);
 		Util.setUpOffset(graphNodes);
 		setupGraph(edgeweights1, edgeweights2, graphNodes, nodeLabels, start, target);
 		showIntroduction();
@@ -61,11 +68,36 @@ public class ShortestPathSearch {
 		showConclusion();
 	}
 
+	private void setupCounter() {
+		CounterProperties cp =new CounterProperties();
+		cp.set(AnimationPropertiesKeys.FILLED_PROPERTY,true);
+		cp.set(AnimationPropertiesKeys.FILL_PROPERTY, Color.DARK_GRAY);
+		counter = new TwoValueView(language, new Coordinates(Util.newLabelX ,Util.counterY), true, true, cp, new String[]{"Labels Created", "Labels Dominated"});
+		counter.show();
+	}
+	
+	private void incDominated(){
+		dominatedLabels++;
+		counter.update(ControllerEnum.access, 1);
+	}
+	
+	private void incCreated(){
+		createdLabels++;
+		counter.update(ControllerEnum.assignments, 1);
+	}
+
 	private void showAlgorithm() {
+		TextProperties headerProps2 = new TextProperties();
+		headerProps2.set(AnimationPropertiesKeys.FONT_PROPERTY, new Font(Font.SANS_SERIF, Font.PLAIN, 16));
+		headerProps2.set("centered", true);
+		header2 = language.newText(new Coordinates(450,30), "Search from " + graph.getNodeLabel(graph.getStartNode()) + " to " +graph.getNodeLabel(graph.getTargetNode()) , "header2", null,
+				headerProps2);
 		findShortestSolution(graph.getPositionForNode(graph.getStartNode()), graph.getPositionForNode(graph.getTargetNode()));
 	}
 
 	private void findShortestSolution(int start, int target) {
+		
+		
 		for (int i = 0; i < graphEdges.size(); i++) {
 			nodeLabels.put(i, new ArrayList<Label>());
 		}
@@ -87,6 +119,7 @@ public class ShortestPathSearch {
 		labelIndex++;
 		pq.put(1,labelStr , null, null);
 		labels.addLabelToNodeList(labelStr, graph.getNodeLabel(start));
+		incCreated();
 		language.nextStep();
 		//Queue Highlight
 		unhighlightEverything();
@@ -126,6 +159,7 @@ public class ShortestPathSearch {
 				labelIndex++;
 				newLabelArray.put(1, labelStr, null, null);
 				newLabelArray.highlightCell(1, null, null);
+				incCreated();
 				language.nextStep();
 				//Dominate Highlight
 				src.unhighlight(8);
@@ -134,6 +168,7 @@ public class ShortestPathSearch {
 				
 				if (isDominated(newLabel)) {
 					//Continue Highligh und Clear
+					incDominated();
 					src.unhighlight(9);
 					src.highlight(10);
 					language.nextStep();
@@ -163,7 +198,8 @@ public class ShortestPathSearch {
 					language.nextStep();
 					
 					nodeLabels.get(newLabel.node).removeIf(x -> {
-						if(dominates(newLabel, x)){							
+						if(dominates(newLabel, x)){	
+							incDominated();
 							labels.remove(nodeLabels.get(newLabel.node).indexOf(x), graph.getNodeLabel(newLabel.node), language);
 						}
 						return dominates(newLabel, x);
@@ -214,6 +250,7 @@ public class ShortestPathSearch {
 		terminalList.removeIf(x -> {
 			for (Label l : terminalList) {
 				if (dominates(l, x)) {
+					incDominated();
 					labels.remove(terminalList.indexOf(x), graph.getNodeLabel(target), language);
 					return true;
 				}
@@ -333,7 +370,7 @@ public class ShortestPathSearch {
 		sourceCodeProps = new SourceCodeProperties();
 		sourceCodeProps.set(AnimationPropertiesKeys.FONT_PROPERTY, new Font(Font.SANS_SERIF, Font.PLAIN, 14));
 		sourceCodeProps.set("highlightColor", Color.RED);
-		src = language.newSourceCode(new Coordinates(100, 40), "introduction", null, sourceCodeProps);
+		src = language.newSourceCode(new Coordinates(100, 70), "introduction", null, sourceCodeProps);
 		src.addMultilineCode(
 				"The multicriterial shortest path search is used to find Pareto optimal paths through a directed graph,\n where the edges have weights for multiple criteria."
 						+ "It is loosely based on Dijkstras Shortest Path Algorithm, \n but has several adjustments to support more than one search criterion."
@@ -349,8 +386,11 @@ public class ShortestPathSearch {
 		pq.hide();
 		dominatedSrc.hide();
 		header.show();
+		header2.show();
+		counter.hide();
+		
 		MAXLABELLENGTH = 100;
-		InfoBox info =  new InfoBox(language, new Coordinates(Util.pqX, Util.pqY), 14, "Resulting Paths" );
+		InfoBox info =  new InfoBox(language, new Coordinates(Util.pqX, Util.pqY), 50, "Resulting Paths" );
 		graph.show();
 		terminalList = terminalList.stream().sorted((r,l) -> {
 			int comp1 = Integer.compare(l.weights[0], r.weights[0]);
@@ -360,7 +400,9 @@ public class ShortestPathSearch {
 				return Integer.compare(l.weights[1], r.weights[1]);
 			}
 		}).collect(Collectors.toList());
+		
 		List<String> text = terminalList.stream().map(x -> createLabelString(-1, x)).collect(Collectors.toList());
+		MAXLABELLENGTH = 14;
 		if(terminalList.size() > 1){
 			text.addAll(Arrays.asList("",
 					"Pareto optimality ensures multiple results, that are all optimal in regards to one criterion or a combination of both.",
@@ -374,6 +416,9 @@ public class ShortestPathSearch {
 		}else{
 			text.addAll(Arrays.asList("", "This label dominated every other label at the goal or before and therefore there is only one result.", "With a different graph more results might be found."));
 		}
+		text.addAll(Arrays.asList("", "Statistics:", "Created Labels: " +createdLabels , "Dominated Labels: " + dominatedLabels,
+								"The number of created Labels greatly influences the runtime and memory the algorithm needs, especially for more complex data types and bigger graphs. ",
+								"Therefore, it is important to keep the number of created Labels as low as possible."));
 		info.setText(text);
 		src.hide();
 		/*src = language.newSourceCode(new Coordinates(100, 40), "conclusion", null, sourceCodeProps);
@@ -418,6 +463,7 @@ public class ShortestPathSearch {
 
 	public void showMainPanel() {
 		showSourceCode();
+		setupCounter();
 		graph.show();
 		showArrays();
 		language.nextStep();
@@ -430,11 +476,10 @@ public class ShortestPathSearch {
 		}
 		queue[0] = "PQ:            ";
 		
-		ArrayProperties opt = new ArrayProperties();
+		ArrayProperties opt = arrayProps;
 		ArrayProperties optLabel = new ArrayProperties();
 		Util.setArrayProperties(optLabel);
 		optLabel.set(AnimationPropertiesKeys.DIRECTION_PROPERTY, false);
-		Util.setArrayProperties(opt);
 		opt.set(AnimationPropertiesKeys.DIRECTION_PROPERTY, true);
 		
 		int labelsSize = graph.getSize() * 5;
@@ -525,7 +570,7 @@ public class ShortestPathSearch {
 		
 		
 	}
-
+	
 	public static void main(String[] args) {
 		
 	}
