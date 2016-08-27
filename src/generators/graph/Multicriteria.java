@@ -5,21 +5,31 @@
  */
 package generators.graph;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Hashtable;
 import java.util.Locale;
 
 import algoanim.animalscript.AnimalScript;
 import algoanim.primitives.generators.Language;
 import algoanim.properties.ArrayProperties;
+import algoanim.util.Coordinates;
 import generators.framework.Generator;
 import generators.framework.GeneratorType;
+import generators.framework.ValidatingGenerator;
 import generators.framework.properties.AnimationPropertiesContainer;
 
-public class Multicriteria implements Generator {
+public class Multicriteria implements ValidatingGenerator {
 	private Language lang;
 	private String[] nodes;
 	private String query;
 	private String[] edges;
+	private int[][] edgeweights1;
+	private int[][] edgeweights2;
+	private String[] nodeLabels;
+	private Coordinates[] graphNodes;
+	private int startIndex;
+	private int targetIndex ;
 	private ArrayProperties props;
 
 	public void init() {
@@ -27,12 +37,51 @@ public class Multicriteria implements Generator {
 	}
 
 	public String generate(AnimationPropertiesContainer props, Hashtable<String, Object> primitives) {
-		nodes = (String[]) primitives.get("Nodes (N, X, Y)");
-		query = (String) primitives.get("Query (From, To)");
-		edges = (String[]) primitives.get("Edges (From, To, Weight1, Weight2)");
-
+		this.props = (ArrayProperties)props.getPropertiesByName("Color Properties");
+		nodes = (String[]) primitives.get("Nodes (N|X|Y)");
+		query = (String) primitives.get("Query (From|To)");
+		edges = (String[]) primitives.get("Edges (From|To|Weight1|Weight2)");
+		parseInput();
+		new ShortestPathSearch(lang).start(edgeweights1, edgeweights2, graphNodes, nodeLabels, startIndex, targetIndex, this.props);
 		return lang.toString();
 	}
+
+	private void parseInput() {
+		nodeLabels = new String[nodes.length];
+		edgeweights1 = new int[nodes.length][nodes.length];
+		edgeweights2 = new int[nodes.length][nodes.length];
+		graphNodes = new Coordinates[nodes.length];
+		
+		//Parse Nodes
+		for(int i = 0; i < nodes.length; i++){
+			String[] nodeStrings = nodes[i].split("\\|");
+			nodeLabels[i] = nodeStrings[0].substring(1, nodeStrings[0].length());
+			int x = Integer.parseInt(nodeStrings[1]);
+			int y = Integer.parseInt(nodeStrings[2].substring(0, nodeStrings[2].length()-1));
+			graphNodes[i] = new Coordinates(x,y);
+		}
+		
+		//Parse Query
+		String[] queryNodes = query.split("\\|");
+		startIndex = Arrays.asList(nodeLabels).indexOf(queryNodes[0].substring(1, queryNodes[0].length()));
+		targetIndex = Arrays.asList(nodeLabels).indexOf(queryNodes[1].substring(0, queryNodes[1].length()-1));
+		
+		//Parse Edges
+		Arrays.asList(edges).stream().forEach(x ->{
+			x = x.replaceAll("\\(", "");
+			x = x.replaceAll("\\)", "");
+			
+			String[] edgeStrings = x.split("\\|");
+			int i = Arrays.asList(nodeLabels).indexOf(edgeStrings[0]);
+			int j = Arrays.asList(nodeLabels).indexOf(edgeStrings[1]);
+			
+			edgeweights1[i][j] = Integer.parseInt(edgeStrings[2]);
+			edgeweights2[i][j] = Integer.parseInt(edgeStrings[3]);
+			
+		});
+	}
+	
+
 
 	public String getName() {
 		return "Shortest Path Multicriteria";
@@ -86,6 +135,92 @@ public class Multicriteria implements Generator {
 
 	public String getOutputLanguage() {
 		return Generator.PSEUDO_CODE_OUTPUT;
+	}
+
+	@Override
+	public boolean validateInput(AnimationPropertiesContainer props, Hashtable<String, Object> primitives)
+			throws IllegalArgumentException {
+		String[] checkNodes = (String[]) primitives.get("Nodes (N|X|Y)");
+		String checkQuery = (String) primitives.get("Query (From|To)");
+		String[] checkEdges = (String[]) primitives.get("Edges (From|To|Weight1|Weight2)");
+		ArrayList<String> nodeLabels = new ArrayList<String>();
+		
+		//Validate Nodes
+		boolean nodeBool = Arrays.asList(checkNodes).stream().allMatch(x -> {
+			if((x.charAt(0) != '(') || x.charAt(x.length()-1) != ')'){
+				return false;
+			}
+			String[] strings = x.split("\\|");
+			if(strings.length != 3){
+				return false;
+			}
+			if(!isPositiveInteger(strings[1]) || !isPositiveInteger(strings[2].substring(0, strings[2].length()-1))){
+				return false;
+			}
+			nodeLabels.add(strings[0].substring(1, strings[0].length()));
+			return true;
+		});
+		
+		
+		//Validate Query
+		boolean queryBool = true;
+		if((checkQuery.charAt(0) != '(') || checkQuery.charAt(checkQuery.length()-1) != ')'){
+			return false;
+		}
+		
+		String[] queryNodes = checkQuery.split("\\|");
+		if(queryNodes.length != 2){
+			queryBool = false;
+		}else {
+			if(!nodeLabels.contains(queryNodes[0].substring(1, queryNodes[0].length()))
+					|| !nodeLabels.contains(queryNodes[1].substring(0, queryNodes[1].length()-1))){
+				queryBool = false;
+			}
+		}
+		
+		//Validate Edges
+		boolean edgeBool = Arrays.asList(checkEdges).stream().allMatch(x -> {
+			if((x.charAt(0) != '(') || x.charAt(x.length()-1) != ')'){
+				return false;
+			}
+			String[] edgeStrings = x.split("\\|");
+			if(edgeStrings.length != 4){
+				return false;
+			}
+			if(!nodeLabels.contains(edgeStrings[0].substring(1, edgeStrings[0].length()))
+					|| !nodeLabels.contains(edgeStrings[1])){
+				return false;
+			}
+			if(!isPositiveInteger(edgeStrings[2]) || !isPositiveInteger(edgeStrings[3].substring(0, edgeStrings[3].length()-1))){
+				return false;
+			}
+			
+			return true;
+		});
+		System.out.println("NODESVALID:" + nodeBool + " | QUERYVALID: " + queryBool + " | EDGESVALID: " + edgeBool);
+				
+		return nodeBool && queryBool && edgeBool;
+	}
+	
+	public boolean isPositiveInteger(String str ){
+	    if (str == null) {
+	        return false;
+	    }
+	    int length = str.length();
+	    if (length == 0) {
+	        return false;
+	    }
+	    int i = 0;
+	    if (str.charAt(0) == '-') {
+	        return false;
+	    }
+	    for (; i < length; i++) {
+	        char c = str.charAt(i);
+	        if (c < '0' || c > '9') {
+	            return false;
+	        }
+	    }
+	    return true;
 	}
 
 }

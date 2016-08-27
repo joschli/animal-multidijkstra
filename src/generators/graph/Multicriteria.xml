@@ -36,7 +36,7 @@
 				<name>name</name>
 				<isEditable value="true" />
 				<label></label>
-				<value><String>Array Properties</String></value>
+				<value><String>Color Properties</String></value>
 			</AnimationPropertyItem>
 			<AnimationPropertyItem type="BooleanPropertyItem">
 				<name>filled</name>
@@ -47,12 +47,12 @@
 			<AnimationPropertyItem type="BooleanPropertyItem">
 				<name>vertical</name>
 				<isEditable value="false" />
-				<label></label>
-				<value><boolean value="true" /></value>
+				<label>vertical</label>
+				<value><boolean value="false" ></boolean></value>
 			</AnimationPropertyItem>
 			<AnimationPropertyItem type="ColorPropertyItem">
 				<name>elementColor</name>
-				<isEditable value="false" />
+				<isEditable value="true" />
 				<label>Text color</label>
 				<value><Color>(255, 255, 255)</Color></value>
 			</AnimationPropertyItem>
@@ -70,22 +70,22 @@
 			</AnimationPropertyItem>
 			<AnimationPropertyItem type="ColorPropertyItem">
 				<name>elemHighlight</name>
-				<isEditable value="true" />
+				<isEditable value="false" />
 				<label>Element Highlight</label>
 				<value><Color>(255, 255, 255)</Color></value>
 			</AnimationPropertyItem>
-		</AnimationProperties>
-		<Primitive type="StringArray">
-			<name>Nodes (N, X, Y)</name>
-			<value><StringArray>(A, 300, 100), (B, 50, 300), (C, 500, 300), (D, 300, 600), (E, 300, 300)</StringArray></value>
+		</AnimationProperties><Primitive type="StringArray">
+			<name>Nodes (N|X|Y)</name>
+			<value><StringArray>(A|300|100), (B|50|300), (C|300|300), (D|500|300), (E|300|600)</StringArray></value>
 		</Primitive>
 		<Primitive type="StringArray">
-			<name>Edges (From, To, Weight1, Weight2)</name>
-			<value><StringArray>(A, B, 10, 2) , (A, C, 21, 1), (A, D, 15, 1), (B, C, 10, 1), (B, E, 30, 3), (C, E, 10, 4), (C, D, 10, 2), (D, E, 20, 2)</StringArray></value>
+			<name>Edges (From|To|Weight1|Weight2)</name>
+			<value><StringArray>(A|B|10|2) , (A|C|21|1), (A|D|15|1), (B|C|10|1), (B|E|30|3), (C|E|10|4), (C|D|10|2), (D|E|20|2)</StringArray></value>
 		</Primitive>
 		<Primitive type="String">
-			<name>Query (From, To)</name>
-			<value><String>(A, E)</String></value>
+			<name>Query (From|To)</name>
+			<value><String>(A|E)</String></value>
 		</Primitive>
+		
 	</Folder>
 </PropertiesTreeModel>

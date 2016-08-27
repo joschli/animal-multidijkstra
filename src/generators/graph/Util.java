@@ -12,10 +12,10 @@ import algoanim.util.Coordinates;
 public class Util {
 
 	//Graph Colors
-	public final static Color FILLCOLORNODE = Color.GRAY;
-	public final static Color NODETEXTCOLOR = Color.WHITE;
-	public final static Color GRAPHHIGHLIGHTCOLOR = new Color(139,0,0);
-	public final static Color GRAPHELEMHIGHLIGHTCOLOR = Color.WHITE;
+	public static Color FILLCOLORNODE = Color.GRAY;
+	public static Color NODETEXTCOLOR = Color.WHITE;
+	public static Color GRAPHHIGHLIGHTCOLOR = new Color(139,0,0);
+	public static Color GRAPHELEMHIGHLIGHTCOLOR = Color.WHITE;
 	
 	//ArrayColors
 	public final static Color ARRAYFILLCOLOR = Color.GRAY;
@@ -33,6 +33,7 @@ public class Util {
 	public static int sourceCodeY = 50;
 	public static int dominatesY = 500;
 	public static int newLabelY = 470;
+	public static int counterY = 470;
 	
 	public static GraphProperties getGraphProperties(){
 		GraphProperties prop = new GraphProperties();
@@ -47,6 +48,14 @@ public class Util {
 		return prop;
 	}
 	
+
+	public static void setGraphColors(ArrayProperties props) {
+		Util.FILLCOLORNODE = (Color) props.get("fillColor");
+		Util.NODETEXTCOLOR = (Color) props.get("elementColor");
+		Util.GRAPHELEMHIGHLIGHTCOLOR = (Color) props.get("elementColor");
+		Util.GRAPHHIGHLIGHTCOLOR = (Color) props.get("cellHighlight");
+	}
+	
 	public static void setArrayProperties(ArrayProperties opt) {
 		opt.set("fillColor", ARRAYFILLCOLOR);
 		opt.set("elementColor", ARRAYTEXTCOLOR);
@@ -55,6 +64,7 @@ public class Util {
 		opt.set("filled", false);
 		opt.set("font", new Font(Font.SANS_SERIF, Font.PLAIN, 12));
 	}
+	
 
 	public static void setUpOffset(Coordinates[] graphNodes) {
 		int maxX = pqX - 50;
@@ -71,6 +81,8 @@ public class Util {
 		Util.labelsX = pqX + 150;
 		Util.sourceCodeX = labelsX + 150;
 		Util.newLabelX = pqX - 175;
-		Util.newLabelY = maxY + 75;
+		Util.newLabelY = maxY + 50;
+		Util.counterY = newLabelY + 50;
 	}
+
 }
