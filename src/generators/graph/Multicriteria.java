@@ -41,8 +41,13 @@ public class Multicriteria implements ValidatingGenerator {
 		nodes = (String[]) primitives.get("Nodes (N|X|Y)");
 		query = (String) primitives.get("Query (From|To)");
 		edges = (String[]) primitives.get("Edges (From|To|Weight1|Weight2)");
+		int perc = (int) primitives.get("% Questions");
+		int corr = (int) primitives.get("Max correct");
+		Util.rightPerCategories = corr;
+		Util.percentageOfQuestions = perc;
 		parseInput();
 		new ShortestPathSearch(lang).start(edgeweights1, edgeweights2, graphNodes, nodeLabels, startIndex, targetIndex, this.props);
+		lang.finalizeGeneration();
 		return lang.toString();
 	}
 

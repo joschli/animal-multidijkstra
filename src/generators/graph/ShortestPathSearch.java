@@ -26,6 +26,8 @@ import algoanim.properties.SourceCodeProperties;
 import algoanim.properties.TextProperties;
 import algoanim.util.Coordinates;
 import algoanim.util.Node;
+import interactionsupport.models.MultipleChoiceQuestionModel;
+import interactionsupport.models.TrueFalseQuestionModel;
 
 public class ShortestPathSearch {
 
@@ -48,6 +50,8 @@ public class ShortestPathSearch {
 	private TwoValueView counter;
 	private int createdLabels;
 	private int dominatedLabels;
+
+  private boolean removed = false;
 	List<Edge> edges = new ArrayList<>();
 
 	public ShortestPathSearch(Language lang) {
@@ -58,9 +62,11 @@ public class ShortestPathSearch {
 	}
 
 	public void start(int[][] edgeweights1, int[][] edgeweights2, Coordinates[] graphNodes, String[] nodeLabels, int start, int target, ArrayProperties props) {
-		arrayProps = props;
+		language.setInteractionType(Language.INTERACTION_TYPE_AVINTERACTION);
+	  arrayProps = props;
 		Util.setGraphColors(props);
 		Util.setUpOffset(graphNodes);
+		Util.setUpQuestions(language);
 		setupGraph(edgeweights1, edgeweights2, graphNodes, nodeLabels, start, target);
 		showIntroduction();
 		showMainPanel();
@@ -189,17 +195,19 @@ public class ShortestPathSearch {
 					labels.addLabelToNodeList(labelStr, graph.getNodeLabel(target));
 					labels.highlightLastAdded(graph.getNodeLabel(target));
 					language.nextStep();
-					
+          Util.getTerminalQuestion(language, terminalList.size());
 					terminalList.add(newLabel);
 					nodeLabels.get(newLabel.node).add(newLabel);
 				} else {
 					src.unhighlight(11);
 					src.highlight(14);
 					language.nextStep();
+					removed = false;
 					
 					nodeLabels.get(newLabel.node).removeIf(x -> {
 						if(dominates(newLabel, x)){	
 							incDominated();
+							removed = true;
 							labels.remove(nodeLabels.get(newLabel.node).indexOf(x), graph.getNodeLabel(newLabel.node), language);
 						}
 						return dominates(newLabel, x);
@@ -211,6 +219,7 @@ public class ShortestPathSearch {
 					language.nextStep();
 					labels.addLabelToNodeList(labelStr, graph.getNodeLabel(newLabel.node));
 					labels.highlightLastAdded(graph.getNodeLabel(newLabel.node));
+          Util.getLabelListQuestion(language,removed);
 					language.nextStep();
 					labels.unhighlightAll();
 					
@@ -295,6 +304,19 @@ public class ShortestPathSearch {
 		return labelStr;
 	}
 	
+	private String createFullLabelString(Label newLabel){
+	  String labelStr = "";
+    String path = "";
+    Label l = newLabel;
+    while(l != null){
+      path = path + graph.getNodeLabel(l.node) + ",";
+      l = l.prev;
+    }
+    path = path.substring(0, path.length()-1);
+    labelStr = "L" +  ": [" + newLabel.weights[0] + "," + newLabel.weights[1] + ",(" + path + ")]";
+    return labelStr;
+	}
+	
 	private void unhighlightEverything(){
 		unhighlightArray(pq);
 		labels.unhighlightAll();
@@ -322,25 +344,32 @@ public class ShortestPathSearch {
 		dominatedSrc.unhighlight(0);
 		dominatedSrc.highlight(1);
 		language.nextStep();
-		labels.highlightNodeList(graph.getNodeLabel(newLabel.node));
+    labels.highlightNodeList(graph.getNodeLabel(newLabel.node));
+		if(nodeLabels.get(newLabel.node) != null
+		    && nodeLabels.get(newLabel.node).size() != 0){
+		Util.getDominatedQuestion(language, willBeDominated(newLabel)? Util.WILLBEDOMINATED : Util.WILLNOTBEDOMINATED,
+        null, newLabel, null, createFullLabelString(newLabel));
+		}
 		language.nextStep();
-		
+
 		if(nodeLabels.get(newLabel.node) != null){
+		  
 			for (Label l : nodeLabels.get(newLabel.node)) {
 				//HighlightFurtherCode
 				dominatedSrc.unhighlight(1);
 				dominatedSrc.highlight(2);
 				dominatedSrc.highlight(3);
+				Util.getDominatedQuestion(language, dominates(l,newLabel) ? Util.LABELDOMINATED : Util.NOTDOMINATED, l, newLabel, createFullLabelString(l), createFullLabelString(newLabel));
 				language.nextStep();
 				
 				if (dominates(l, newLabel)) {
-
 					dominatedSrc.unhighlight(2);
 					dominatedSrc.unhighlight(3);
 					dominatedSrc.highlight(4);
 					language.nextStep();
 					dominatedSrc.unhighlight(4);
 					labels.unhighlightAll();
+					
 					language.nextStep();
 					return true;
 				}
@@ -354,6 +383,17 @@ public class ShortestPathSearch {
 		labels.unhighlightAll();
 		language.nextStep();
 		return false;
+	}
+	
+	private boolean willBeDominated(Label newLabel){
+	  if(nodeLabels.get(newLabel.node) != null){
+      for (Label l : nodeLabels.get(newLabel.node)) {        
+        if (dominates(l, newLabel)) {
+          return true;
+        }
+      }
+    }
+      return false;
 	}
 
 	private boolean dominates(Label l1, Label l2) {
@@ -543,7 +583,7 @@ public class ShortestPathSearch {
 		}
 	}
 
-	private class Label implements Comparable<Label> {
+	protected class Label implements Comparable<Label> {
 		public Label(int node, int weight1, int weight2) {
 			this.prev = null;
 			this.node = node;
@@ -566,6 +606,13 @@ public class ShortestPathSearch {
 		public int compareTo(Label o) {
 			
 			return Integer.compare(weights[0], o.weights[0]);
+		}
+		
+		public int getPathLength(){
+		  if(prev == null){
+		    return 1;
+		  }
+		  return prev.getPathLength()+1;
 		}
 		
 		
