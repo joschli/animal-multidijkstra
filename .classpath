@@ -2,17 +2,17 @@
 <classpath>
 	<classpathentry kind="src" path="src"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
-	<classpathentry kind="lib" path="res/Animal.jar" sourcepath="res/Animal.jar"/>
-	<classpathentry kind="lib" path="res/commons-beanutils-bean-collections-1.8.2.jar"/>
-	<classpathentry kind="lib" path="res/commons-beanutils-core-1.8.2.jar"/>
-	<classpathentry kind="lib" path="res/commons-collections-3.2.1.jar"/>
-	<classpathentry kind="lib" path="res/commons-jexl-2.1.1.jar"/>
-	<classpathentry kind="lib" path="res/commons-jxpath-1.3.jar"/>
-	<classpathentry kind="lib" path="res/commons-logging-1.1.1.jar"/>
-	<classpathentry kind="lib" path="res/commons-math3-3.2.jar"/>
-	<classpathentry kind="lib" path="res/Javaluator.jar"/>
-	<classpathentry kind="lib" path="res/jdom.jar"/>
-	<classpathentry kind="lib" path="res/jscheme_edit.jar"/>
-	<classpathentry kind="lib" path="res/miglayout-3.7.3.1.jar"/>
+	<classpathentry kind="lib" path="/Users/jonasschlitzer/Code/animal-multidijkstra/src/Animal.jar" sourcepath="res/Animal.jar"/>
+	<classpathentry kind="lib" path="AnimalLibs/commons-beanutils-bean-collections-1.8.2.jar"/>
+	<classpathentry kind="lib" path="AnimalLibs/commons-beanutils-core-1.8.2.jar"/>
+	<classpathentry kind="lib" path="AnimalLibs/commons-collections-3.2.1.jar"/>
+	<classpathentry kind="lib" path="AnimalLibs/commons-jexl-2.1.1.jar"/>
+	<classpathentry kind="lib" path="AnimalLibs/commons-jxpath-1.3.jar"/>
+	<classpathentry kind="lib" path="AnimalLibs/commons-logging-1.1.1.jar"/>
+	<classpathentry kind="lib" path="AnimalLibs/commons-math3-3.2.jar"/>
+	<classpathentry kind="lib" path="AnimalLibs/Javaluator.jar"/>
+	<classpathentry kind="lib" path="AnimalLibs/jdom.jar"/>
+	<classpathentry kind="lib" path="AnimalLibs/jscheme_edit.jar"/>
+	<classpathentry kind="lib" path="AnimalLibs/miglayout-3.7.3.1.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

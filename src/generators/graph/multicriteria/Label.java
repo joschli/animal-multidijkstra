@@ -20,6 +20,14 @@ public class Label implements Comparable<Label> {
 		}
 	}
 
+	public Label addLowerBounds(List<Integer> lowerBounds) {
+		Label newLabel = new Label(node);
+		for (int i = 0; i < weights.size(); i++) {
+			newLabel.weights.add(weights.get(i) + lowerBounds.get(i));
+		}
+		return newLabel;
+	}
+
 	public int node;
 	public Label prev;
 	public List<Integer> weights = new ArrayList<>();
@@ -35,4 +43,5 @@ public class Label implements Comparable<Label> {
 		}
 		return 0;
 	}
+
 }

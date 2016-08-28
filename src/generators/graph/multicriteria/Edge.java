@@ -12,6 +12,12 @@ public class Edge {
 		}
 	}
 
+	public Edge invert() {
+		Edge invertedEdge = new Edge(this.end, this.start);
+		invertedEdge.weights = this.weights;
+		return invertedEdge;
+	}
+
 	public int start;
 	public int end;
 	public List<Integer> weights = new ArrayList<>();

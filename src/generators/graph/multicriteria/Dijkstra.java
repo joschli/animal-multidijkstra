@@ -12,14 +12,14 @@ public class Dijkstra {
 		return l.d - r.d;
 	});
 
-	public List<Node> start(Map<Integer, List<Edge>> graphEdges, int start) {
+	public List<Node> findShortestPaths(Map<Integer, List<Edge>> graphEdges, int start, int weight) {
 		init(graphEdges.size(), start);
 		List<Node> result = new ArrayList<>();
 		while (!pq.isEmpty()) {
 			Node n = pq.poll();
 			result.add(n);
 			for (Node v : pq) {
-				int d = dist(n, v, graphEdges.get(n.n));
+				int d = dist(n, v, graphEdges.get(n.n), weight);
 				if (d < v.d) {
 					v.d = d;
 				}
@@ -31,10 +31,10 @@ public class Dijkstra {
 		return result;
 	}
 
-	private int dist(Node n, Node v, List<Edge> edges) {
+	private int dist(Node n, Node v, List<Edge> edges, int weight) {
 		for (Edge e : edges) {
 			if (e.start == n.n && e.end == v.n) {
-				return n.d + e.weights.get(0);
+				return n.d + e.weights.get(weight);
 			}
 		}
 		return Integer.MAX_VALUE;

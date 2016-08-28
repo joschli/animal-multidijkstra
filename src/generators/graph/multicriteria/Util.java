@@ -1,5 +1,4 @@
-package generators.graph;
-
+package generators.graph.multicriteria;
 
 import java.awt.Color;
 import java.awt.Font;
@@ -11,19 +10,19 @@ import algoanim.util.Coordinates;
 
 public class Util {
 
-	//Graph Colors
+	// Graph Colors
 	public static Color FILLCOLORNODE = Color.GRAY;
 	public static Color NODETEXTCOLOR = Color.WHITE;
-	public static Color GRAPHHIGHLIGHTCOLOR = new Color(139,0,0);
+	public static Color GRAPHHIGHLIGHTCOLOR = new Color(139, 0, 0);
 	public static Color GRAPHELEMHIGHLIGHTCOLOR = Color.WHITE;
-	
-	//ArrayColors
+
+	// ArrayColors
 	public final static Color ARRAYFILLCOLOR = Color.GRAY;
 	public final static Color ARRAYTEXTCOLOR = Color.WHITE;
 	public final static Color ARRAYELEMHIGHLIGHT = Color.WHITE;
-	public final static Color ARRAYCELLHIGHLIGHT = new Color(120,30,0);
-	
-	//Positions
+	public final static Color ARRAYCELLHIGHLIGHT = new Color(120, 30, 0);
+
+	// Positions
 	public static int pqX = 400;
 	public static int labelsX = 500;
 	public static int sourceCodeX = 600;
@@ -34,20 +33,23 @@ public class Util {
 	public static int dominatesY = 500;
 	public static int newLabelY = 470;
 	public static int counterY = 470;
-	
-	public static GraphProperties getGraphProperties(){
+	public static int dominatedByTerminal = 700;
+
+	// Label length
+	public static int MAXLABELLENGTH = 14;
+
+	public static GraphProperties getGraphProperties() {
 		GraphProperties prop = new GraphProperties();
 		prop.set("directed", true);
 		prop.set("weighted", true);
-		
+
 		prop.set("nodeColor", NODETEXTCOLOR);
 		prop.set("fillColor", FILLCOLORNODE);
 		prop.set(AnimationPropertiesKeys.ELEMHIGHLIGHT_PROPERTY, GRAPHELEMHIGHLIGHTCOLOR);
 		prop.set(AnimationPropertiesKeys.HIGHLIGHTCOLOR_PROPERTY, GRAPHHIGHLIGHTCOLOR);
-		
+
 		return prop;
 	}
-	
 
 	public static void setGraphColors(ArrayProperties props) {
 		Util.FILLCOLORNODE = (Color) props.get("fillColor");
@@ -55,7 +57,7 @@ public class Util {
 		Util.GRAPHELEMHIGHLIGHTCOLOR = (Color) props.get("elementColor");
 		Util.GRAPHHIGHLIGHTCOLOR = (Color) props.get("cellHighlight");
 	}
-	
+
 	public static void setArrayProperties(ArrayProperties opt) {
 		opt.set("fillColor", ARRAYFILLCOLOR);
 		opt.set("elementColor", ARRAYTEXTCOLOR);
@@ -64,16 +66,15 @@ public class Util {
 		opt.set("filled", false);
 		opt.set("font", new Font(Font.SANS_SERIF, Font.PLAIN, 12));
 	}
-	
 
 	public static void setUpOffset(Coordinates[] graphNodes) {
 		int maxX = pqX - 50;
 		int maxY = newLabelY - 50;
-		for(Coordinates c : graphNodes){
-			if(c.getX() > maxX){
+		for (Coordinates c : graphNodes) {
+			if (c.getX() > maxX) {
 				maxX = c.getX();
 			}
-			if(c.getY() > maxY){
+			if (c.getY() > maxY) {
 				maxY = c.getY();
 			}
 		}
