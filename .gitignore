@@ -2,4 +2,4 @@
 /bin/
 *.class
 *.jar
-
+.classpath

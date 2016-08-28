@@ -58,7 +58,7 @@
 			</AnimationPropertyItem>
 			<AnimationPropertyItem type="BooleanPropertyItem">
 				<name>cascaded</name>
-				<isEditable value="false" />
+				<isEditable value="false" />"/home/tim/test.xml"
 				<label></label>
 				<value><boolean value="false" /></value>
 			</AnimationPropertyItem>
@@ -85,6 +85,16 @@
 		<Primitive type="String">
 			<name>Query (From|To)</name>
 			<value><String>(A|E)</String></value>
+		</Primitive>
+		<Primitive type="int">
+			<name>% Questions</name>
+			<value><int>0</int></value>
+			<description>Percentage of question popups</description>
+		</Primitive>
+		<Primitive type="int">
+			<name>Max correct</name>
+			<value><int>3</int></value>
+			<description>Maximum number of correctly answered questions per category</description>
 		</Primitive>
 		
 	</Folder>

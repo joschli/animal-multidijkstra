@@ -4,6 +4,11 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class Label implements Comparable<Label> {
+	
+	public int node;
+	public Label prev;
+	public List<Integer> weights = new ArrayList<>();
+	
 	public Label(int node, int... weights) {
 		this.prev = null;
 		this.node = node;
@@ -28,9 +33,13 @@ public class Label implements Comparable<Label> {
 		return newLabel;
 	}
 
-	public int node;
-	public Label prev;
-	public List<Integer> weights = new ArrayList<>();
+	public int getPathLength(){
+		  if(prev == null){
+		    return 1;
+		  }
+		  return prev.getPathLength()+1;
+		}
+
 
 	@Override
 	public int compareTo(Label o) {
