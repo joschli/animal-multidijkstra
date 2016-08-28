@@ -5,17 +5,19 @@ import java.awt.Color;
 import java.awt.Font;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
-
+import java.util.stream.Collectors;
 
 import algoanim.primitives.generators.Language;
 import algoanim.properties.AnimationPropertiesKeys;
 import algoanim.properties.ArrayProperties;
 import algoanim.properties.GraphProperties;
 import algoanim.util.Coordinates;
+import generators.graph.ShortestPathSearch.Edge;
 import generators.graph.ShortestPathSearch.Label;
 import interactionsupport.models.FillInBlanksQuestionModel;
 import interactionsupport.models.MultipleChoiceQuestionModel;
@@ -51,7 +53,7 @@ public class Util {
 	public static int counterY = 470;
 	
 	public static final String labels1Prompt = "On which nodes will labels be created for the current label?";
-	public static final String labels2Prompt = "What are the weights for the next created label?";
+	public static final String labels2Prompt = "What are the weights for the next created label, with the previous Label being XY and the Edge being XE? (Answer: Weight1,Weight2)";
 	public static final String labels3Prompt = "How are the weights for the next created label calculated?";
 	public static final String labels4Prompt = "How many labels will be generated in the next iteration of the while-loop?";
 	
@@ -317,6 +319,82 @@ public class Util {
     }else{
       language.addTFQuestion((TrueFalseQuestionModel) q);
     }
+  }
+  
+  public static void getLabelCreationQuestion(Language language, boolean beforeFor,Label l, Edge e, int numEdges, List<String> rightNodes, List<String> allNodes){
+    System.out.println(percentageOfQuestions);
+    if(ThreadLocalRandom.current().nextInt(0, 100) > percentageOfQuestions){
+      return;
+    }
+    List<QuestionModel> qs = questions.get(1);
+    QuestionModel q;
+    if(beforeFor){
+      //q1,q2,q5
+      q = qs.get(Arrays.asList(0,1,4).get(ThreadLocalRandom.current().nextInt(0, 3)));
+      if(needsAnswer.contains(q.getID())){
+        ArrayList<Answer> answers = getAnswerForLabelCreationQuestion(q.getID(), numEdges, rightNodes, allNodes);
+        MultipleChoiceQuestionModel mq = new MultipleChoiceQuestionModel("copy" +copyId);
+
+        copyId++;
+        mq.setPrompt(q.getPrompt());
+        Collections.shuffle(answers);
+        for(Answer a : answers){
+          mq.addAnswer(a.getAnswer(), a.getPoints(), a.getComment());
+        }
+        mq.setGroupID(group1);
+        q = mq;
+      }
+      language.addMCQuestion((MultipleChoiceQuestionModel) q);
+    }else{
+      q =  qs.get(ThreadLocalRandom.current().nextInt(2,4));
+      if(needsAnswer.contains(q.getID())){
+        FillInBlanksQuestionModel fq = new FillInBlanksQuestionModel("copy" + copyId);
+        copyId++;
+        fq.setPrompt(q.getPrompt().replace("XY", l.toString()).replace("XE", e.toString()));
+        fq.addAnswer((l.weights[0]+e.weights[0]) + "," + (l.weights[1] + e.weights[1]), 1, "Correct");
+        fq.setGroupID(group1);
+        language.addFIBQuestion(fq);
+      }else{
+        language.addMCQuestion((MultipleChoiceQuestionModel) q);
+      }
+    }
+  }
+
+
+  private static ArrayList<Answer> getAnswerForLabelCreationQuestion(String id, int numberOfEdges, List<String> rightNodes, List<String> allNodes) {
+    ArrayList<Answer> answers = new ArrayList<Answer>();
+    if(id.equals("q2")){
+      //NODELIST
+      answers.add(new Answer(rightNodes.stream().reduce("" , (a,b) -> {return a + "," + b;}).substring(1), "Correct!", 1 ,true));
+      for(int i = 0; i < 3; i++){
+        List<String> wrongNodes = getWrongNodeList(allNodes, rightNodes); 
+        answers.add(new Answer(wrongNodes.stream().reduce("" , (a,b) -> {return a + "," + b;}).substring(1), "Incorrect!!", 0 ,false));
+        
+      }
+    }
+    if(id.equals("q5")){
+      //NUMBER OF EDGES AT NODE
+      answers.add(new Answer(String.valueOf(numberOfEdges), "Correct!", 1, true));
+      answers.add(new Answer(String.valueOf(numberOfEdges + ThreadLocalRandom.current().nextInt(4,7)), "Incorrect!", 0, false));
+      answers.add(new Answer(String.valueOf(numberOfEdges - ThreadLocalRandom.current().nextInt(4,7)), "Incorrect!", 0, false));
+      answers.add(new Answer(String.valueOf(numberOfEdges + ThreadLocalRandom.current().nextInt(1,4)), "Incorrect!", 0, false));
+      answers.add(new Answer(String.valueOf(numberOfEdges - ThreadLocalRandom.current().nextInt(1,4)), "Incorrect!", 0, false));
+    }
+    return answers;
+  }
+
+
+  private static List<String> getWrongNodeList(List<String> allNodes, List<String> rightNodes) {
+    List<String> wrongNodes;
+    while(true){
+      wrongNodes = allNodes.stream().filter(x -> ThreadLocalRandom.current().nextBoolean()).collect(Collectors.toList());
+      if(wrongNodes.isEmpty() || wrongNodes.stream().allMatch(x -> rightNodes.contains(x))){
+        continue;
+      }else{
+        break; 
+      }
+    }
+    return wrongNodes;
   }
 
 

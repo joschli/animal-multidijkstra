@@ -145,6 +145,10 @@ public class ShortestPathSearch {
 			src.highlight(7);
 			language.nextStep();
 			graph.highlightNode(label.node, null, null);
+			Util.getLabelCreationQuestion(language, true, label, null,
+			                    graphEdges.get(label.node).size(),
+			                    graphEdges.get(label.node).stream().map(x -> graph.getNodeLabel(x.end)).collect(Collectors.toList()),
+			                    nodeLabels.keySet().stream().map(x -> graph.getNodeLabel(x)).collect(Collectors.toList()));
 			language.nextStep();
 			
 			for (Edge e : graphEdges.get(label.node)) {
@@ -160,6 +164,11 @@ public class ShortestPathSearch {
 				//New Label Creation
 				unhighlightSource(src);
 				src.highlight(8);
+				Util.getLabelCreationQuestion(language, false, label, e,
+            graphEdges.get(label.node).size(),
+            graphEdges.get(label.node).stream().map(x -> graph.getNodeLabel(x.end)).collect(Collectors.toList()),
+            nodeLabels.keySet().stream().map(x -> graph.getNodeLabel(x)).collect(Collectors.toList()));
+	      
 				language.nextStep();
 				labelStr = createLabelString(labelIndex, newLabel);
 				labelIndex++;
@@ -566,7 +575,7 @@ public class ShortestPathSearch {
 	}
 	
 
-	private class Edge {
+	protected class Edge {
 		public Edge(int start, int end, int weight1, int weight2) {
 			this.start = start;
 			this.end = end;
@@ -579,7 +588,7 @@ public class ShortestPathSearch {
 		public int[] weights = new int[2];
 
 		public String toString() {
-			return "From " + start + " to " + end + "with (" + weights[0] + ", " + weights[1] + ")";
+			return "E: (" + weights[0] + ", " + weights[1] + ")";
 		}
 	}
 
@@ -613,6 +622,10 @@ public class ShortestPathSearch {
 		    return 1;
 		  }
 		  return prev.getPathLength()+1;
+		}
+		
+		public String toString(){
+		  return "L: (" + weights[0] + ", " + weights[1] + ")";
 		}
 		
 		

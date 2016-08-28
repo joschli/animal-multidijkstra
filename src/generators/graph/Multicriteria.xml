@@ -88,7 +88,7 @@
 		</Primitive>
 		<Primitive type="int">
 			<name>% Questions</name>
-			<value><int>2</int></value>
+			<value><int>0</int></value>
 			<description>Percentage of question popups</description>
 		</Primitive>
 		<Primitive type="int">
