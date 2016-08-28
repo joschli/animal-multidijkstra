@@ -320,7 +320,6 @@ public class Util {
   }
   
   public static void getLabelCreationQuestion(Language language, boolean beforeFor,Label l, Edge e, int numEdges, List<String> rightNodes, List<String> allNodes){
-    System.out.println(percentageOfQuestions);
     if(ThreadLocalRandom.current().nextInt(0, 100) > percentageOfQuestions){
       return;
     }

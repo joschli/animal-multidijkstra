@@ -8,6 +8,7 @@ package generators.graph;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Hashtable;
+import java.util.List;
 import java.util.Locale;
 
 import algoanim.animalscript.AnimalScript;
@@ -24,8 +25,7 @@ public class Multicriteria implements ValidatingGenerator {
 	private String[] nodes;
 	private String query;
 	private String[] edges;
-	private int[][] edgeweights1;
-	private int[][] edgeweights2;
+	List<Integer[][]> edgeWeights;
 	private String[] nodeLabels;
 	private Coordinates[] graphNodes;
 	private int startIndex;
@@ -46,17 +46,24 @@ public class Multicriteria implements ValidatingGenerator {
 		Util.rightPerCategories = corr;
 		Util.percentageOfQuestions = perc;
 		parseInput();
-		new ShortestPathSearch(lang).start(edgeweights1, edgeweights2, graphNodes, nodeLabels, startIndex, targetIndex, this.props);
+		new ShortestPathSearch(lang).start(edgeWeights, graphNodes, nodeLabels, startIndex, targetIndex, this.props);
 		lang.finalizeGeneration();
 		return lang.toString();
 	}
 
 	private void parseInput() {
 		nodeLabels = new String[nodes.length];
-		edgeweights1 = new int[nodes.length][nodes.length];
-		edgeweights2 = new int[nodes.length][nodes.length];
 		graphNodes = new Coordinates[nodes.length];
-		
+		edgeWeights = new ArrayList<>();
+		for(int i = 0; i < edges[0].split("\\|").length - 2; i++){
+			Integer[][] ew = new Integer[nodes.length][nodes.length];
+			for(int j = 0; j < ew.length; j++){
+				for(int s = 0; s < ew[j].length; s++){
+					ew[j][s] = new Integer(0);
+				}
+			}
+			edgeWeights.add(ew);
+		}
 		//Parse Nodes
 		for(int i = 0; i < nodes.length; i++){
 			String[] nodeStrings = nodes[i].split("\\|");
@@ -71,18 +78,20 @@ public class Multicriteria implements ValidatingGenerator {
 		startIndex = Arrays.asList(nodeLabels).indexOf(queryNodes[0].substring(1, queryNodes[0].length()));
 		targetIndex = Arrays.asList(nodeLabels).indexOf(queryNodes[1].substring(0, queryNodes[1].length()-1));
 		
-		//Parse Edges
+	    //Parse Edges
+
 		Arrays.asList(edges).stream().forEach(x ->{
-			x = x.replaceAll("\\(", "");
-			x = x.replaceAll("\\)", "");
-			
-			String[] edgeStrings = x.split("\\|");
-			int i = Arrays.asList(nodeLabels).indexOf(edgeStrings[0]);
-			int j = Arrays.asList(nodeLabels).indexOf(edgeStrings[1]);
-			
-			edgeweights1[i][j] = Integer.parseInt(edgeStrings[2]);
-			edgeweights2[i][j] = Integer.parseInt(edgeStrings[3]);
-			
+		  x = x.replaceAll("\\(", "");
+		  x = x.replaceAll("\\)", "");
+
+		  String[] edgeStrings = x.split("\\|");
+		  int i = Arrays.asList(nodeLabels).indexOf(edgeStrings[0]);
+		  int j = Arrays.asList(nodeLabels).indexOf(edgeStrings[1]);
+
+		  for(int w = 2; w < edgeStrings.length; w++){
+		    edgeWeights.get(w-2)[i][j] = Integer.parseInt(edgeStrings[w]);
+		  }
+
 		});
 	}
 	
@@ -189,18 +198,22 @@ public class Multicriteria implements ValidatingGenerator {
 				return false;
 			}
 			String[] edgeStrings = x.split("\\|");
-			if(edgeStrings.length != 4){
+			if(edgeStrings.length < 4){
 				return false;
 			}
 			if(!nodeLabels.contains(edgeStrings[0].substring(1, edgeStrings[0].length()))
 					|| !nodeLabels.contains(edgeStrings[1])){
 				return false;
 			}
-			if(!isPositiveInteger(edgeStrings[2]) || !isPositiveInteger(edgeStrings[3].substring(0, edgeStrings[3].length()-1))){
-				return false;
+			boolean valid = true;
+			for(int i = 2;i < edgeStrings.length; i++){
+				if( i != edgeStrings.length - 1){
+					valid = valid && isPositiveInteger(edgeStrings[i]);
+				}else{
+					valid = valid && isPositiveInteger(edgeStrings[i].substring(0, edgeStrings[i].length()-1));
+				}
 			}
-			
-			return true;
+			return valid;
 		});
 		System.out.println("NODESVALID:" + nodeBool + " | QUERYVALID: " + queryBool + " | EDGESVALID: " + edgeBool);
 				

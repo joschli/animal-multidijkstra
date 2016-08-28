@@ -72,14 +72,21 @@ public class ShortestPathSearch {
 		nodeLabels = new HashMap<Integer, List<Label>>();
 	}
 
-	public void start(int[][] edgeweights1, int[][] edgeweights2, Coordinates[] graphNodes, String[] nodeLabels,
+	public void start(List<Integer[][]> edgeWeights, Coordinates[] graphNodes, String[] nodeLabels,
 			int start, int target, ArrayProperties props) {
 		language.setInteractionType(Language.INTERACTION_TYPE_AVINTERACTION);
 		arrayProps = props;
 		Util.setGraphColors(props);
 		Util.setUpOffset(graphNodes);
 		Util.setUpQuestions(language);
-		setupGraph(edgeweights1, edgeweights2, graphNodes, nodeLabels, start, target);
+		for(int w = 0; w < edgeWeights.size(); w++){
+			for(int i = 0; i < edgeWeights.get(w).length; i++){
+				for(int j = 0; j < edgeWeights.get(w)[i].length; j++){
+					System.out.println(edgeWeights.get(w)[i][j]);
+				}
+			}
+		}
+		setupGraph(edgeWeights, graphNodes, nodeLabels, start, target);
 		this.lowerBounds = new LowerBounds(graphEdges, target, 2);
 		showIntroduction();
 		showMainPanel();
@@ -593,22 +600,41 @@ public class ShortestPathSearch {
 		lb.show();
 	}
 
-	public void setupGraph(int[][] edgeWeights1, int[][] edgeWeights2, Node[] nodes, String[] nodeLabels, int start,
+	public void setupGraph(List<Integer[][]> edgeWeights, Node[] nodes, String[] nodeLabels, int start,
 			int target) {
 
 		for (int i = 0; i < nodes.length; i++) {
 			graphEdges.put(i, new ArrayList<Edge>());
 		}
-
+		
+		int[][][] weights = new int[edgeWeights.size()][edgeWeights.get(0).length][edgeWeights.get(0)[0].length];
+		for(int w = 0; w < edgeWeights.size(); w++){
+			for(int i = 0; i < edgeWeights.get(w).length; i++){
+				for(int j = 0; j < edgeWeights.get(w)[i].length; j++){
+					weights[w][i][j] = edgeWeights.get(w)[i][j];
+				}
+			}
+		}
 		GraphProperties prop = Util.getGraphProperties();
-		graph = language.newGraph("Test", edgeWeights1, nodes, nodeLabels, null, prop);
-		for (int i = 0; i < edgeWeights1.length; i++) {
-			for (int j = 0; j < edgeWeights1[i].length; j++) {
-				String weightStr = "(" + edgeWeights1[i][j] + "," + edgeWeights2[i][j] + ")";
+		graph = language.newGraph("Test", weights[0], nodes,nodeLabels, null, prop);
+		for(int i = 0; i < weights[0].length; i++){
+			for(int j = 0 ; j < weights[0][0].length; j++){
+				boolean connected = true;
+				String weightStr = "(";
+				int[] edge = new int[weights.length];
+				for(int w = 0; w < weights.length; w++){
+					connected = connected && weights[w][i][j] != 0;
+					edge[w] = weights[w][i][j];
+					if(w != weights.length - 1){
+						weightStr += weights[w][i][j] + ",";
+					}else{
+						weightStr += weights[w][i][j] + ")";
+					}
+				}
 
-				if (edgeWeights1[i][j] != 0 && edgeWeights2[i][j] != 0) {
+				if(connected){
 					graph.setEdgeWeight(i, j, weightStr, null, null);
-					graphEdges.get(i).add(new Edge(i, j, edgeWeights1[i][j], edgeWeights2[i][j]));
+					graphEdges.get(i).add(new Edge(i, j, edge));
 				}
 			}
 		}
@@ -623,10 +649,13 @@ public class ShortestPathSearch {
 				"Tim Witzel, Jonas Schlitzer", 800, 600);
 		// Changeable Graph
 		// First and second Weight of Edges, two weights of zero mean no edge
-		int[][] edgeweights1 = { { 0, 10, 15, 0, 21 }, { 0, 0, 0, 30, 10 }, { 0, 0, 0, 20, 0 }, { 0, 0, 0, 0, 0 },
+		Integer[][] edgeweights1 = { { 0, 10, 15, 0, 21 }, { 0, 0, 0, 30, 10 }, { 0, 0, 0, 20, 0 }, { 0, 0, 0, 0, 0 },
 				{ 0, 0, 10, 10, 0 } };
-		int[][] edgeweights2 = { { 0, 2, 1, 0, 1 }, { 0, 0, 0, 3, 1 }, { 0, 0, 0, 2, 0 }, { 0, 0, 0, 0, 0 },
+		Integer[][] edgeweights2 = { { 0, 2, 1, 0, 1 }, { 0, 0, 0, 3, 1 }, { 0, 0, 0, 2, 0 }, { 0, 0, 0, 0, 0 },
 				{ 0, 0, 2, 4, 0 } };
+		List<Integer[][]> edgeWeights = new ArrayList<>();
+		edgeWeights.add(edgeweights1);
+		edgeWeights.add(edgeweights2);
 		// Coordinates of graphNodes
 		Coordinates[] graphNodes = { new Coordinates(300, 100), new Coordinates(50, 300), new Coordinates(500, 300),
 				new Coordinates(300, 600), new Coordinates(300, 300) };
@@ -637,7 +666,7 @@ public class ShortestPathSearch {
 		// Targetindex of the search
 		int targetIndex = 3;
 
-		new ShortestPathSearch(lang).start(edgeweights1, edgeweights2, graphNodes, nodeLabels, startIndex, targetIndex,
+		new ShortestPathSearch(lang).start(edgeWeights, graphNodes, nodeLabels, startIndex, targetIndex,
 				new ArrayProperties());
 		System.out.println(lang);
 	}
