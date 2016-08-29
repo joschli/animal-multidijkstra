@@ -116,7 +116,7 @@ public class Multicriteria implements ValidatingGenerator {
 	public String getDescription() {
 		return "The multicriterial shortest path search is used to find Pareto optimal paths through a directed graph, where the edges have weights for multiple criteria."
 				+ "\n"
-				+ "It is loosely based on Dijkstras Shortest Path Algorithm, but has several adjustments to support more than one search criterion."
+				+ "It is loosely based on Dijkstra's Shortest Path Algorithm, but has several adjustments to support more than one search criterion."
 				+ "\n"
 				+ "Because multiple criteria are used, the algorithm can result in more than one Pareto optimal path.";
 	}

@@ -484,7 +484,7 @@ public class ShortestPathSearch {
 		src = language.newSourceCode(new Coordinates(100, 70), "introduction", null, sourceCodeProps);
 		src.addMultilineCode(
 				"The multicriterial shortest path search is used to find Pareto optimal paths through a directed graph,\n where the edges have weights for multiple criteria."
-						+ "It is loosely based on Dijkstras Shortest Path Algorithm, \n but has several adjustments to support more than one search criterion."
+						+ "It is loosely based on Dijkstra's Shortest Path Algorithm, \n but has several adjustments to support more than one search criterion."
 						+ "Because multiple criteria are used, \n the algorithm can result in more than one Pareto optimal path.",
 				"test", null);
 		language.nextStep();
