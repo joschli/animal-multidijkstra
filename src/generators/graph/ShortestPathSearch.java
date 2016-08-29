@@ -49,14 +49,9 @@ public class ShortestPathSearch {
 	private NodeLabelList labels;
 	private StringArray newLabelArray;
 
-	// private Queue<Label> queue = new PriorityQueue<>((l, r) -> {
-	// return l.lowerBound.compareTo(r.lowerBound);
-	// });
-
 	private Queue<Label> queue = new PriorityQueue<>();
 	private Map<Integer, List<Edge>> graphEdges;
 	private Map<Integer, List<Label>> nodeLabels = new HashMap<>();
-	private int weightCount = 0;
 	private int target = 0;
 	private List<Label> terminalList = new ArrayList<>();
 
@@ -83,13 +78,14 @@ public class ShortestPathSearch {
 			int target, boolean goalDirected, boolean dominationByTerminal, ArrayProperties props) {
 		language.setInteractionType(Language.INTERACTION_TYPE_AVINTERACTION);
 		this.earlyTermination = dominationByTerminal;
+		this.goalDirected = goalDirected;
+		System.out.println(earlyTermination);
 		if (goalDirected) {
 			queue = new PriorityQueue<>((l, r) -> {
 				return l.lowerBound.compareTo(r.lowerBound);
 			});
 		}
 		arrayProps = props;
-		weightCount = edgeWeights.size();
 		this.target = target;
 		Util.setGraphColors(props);
 		Util.setUpOffset(graphNodes);
@@ -346,10 +342,11 @@ public class ShortestPathSearch {
 	}
 
 	private int changedHighlightIndex(int index){
+		int result = index;
 		if(!earlyTermination){
-			return index--;
+			result = result - 1;
 		}
-		return index;
+		return result;
 	}
 
 	private void addToPq(String labelStr) {
@@ -494,7 +491,7 @@ public class ShortestPathSearch {
 		if (goalDirected) {
 			text += "\nLower Bounds are used to sort the Priority Queue to extract the most promising "
 					+ "\nLabel first. This is done by adding the Lower Bounds of a labels node to the label and then "
-					+ "\n sorting the labels. ";
+					+ "\nsorting the labels. ";
 		}
 		text += "\n Lower Bounds for every node in this graph with these weights are:";
 		src.hide();

@@ -45,6 +45,7 @@ public class Multicriteria implements ValidatingGenerator {
 		int corr = (int) primitives.get("Max correct");
 		boolean goalDirected = (boolean) primitives.get("Goal-directed search");
 		boolean dominationByTerminal = (boolean) primitives.get("Domination by Terminal");
+		System.out.println("EarlyTermination|GoalDirected: (" + dominationByTerminal + "|" + goalDirected + ")");
 		Util.rightPerCategories = corr;
 		Util.percentageOfQuestions = perc;
 		parseInput();
