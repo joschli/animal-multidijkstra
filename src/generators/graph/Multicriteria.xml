@@ -80,7 +80,7 @@
 		</Primitive>
 		<Primitive type="StringArray">
 			<name>Edges (From|To|Weight1|Weight2|...)</name>
-			<value><StringArray>(A|B|10|2) , (A|C|21|1), (A|D|15|1), (B|C|10|1), (B|E|30|3), (C|E|10|4), (C|D|10|2), (D|E|20|2)</StringArray></value>
+			<value><StringArray>(A|B|10|2|1) , (A|C|21|1|1), (A|D|15|1|1), (B|C|10|1|1), (B|E|30|3|1), (C|E|10|4|1), (C|D|10|2|1), (D|E|20|2|1)</StringArray></value>
 			<description>An Edge needs two nodes and at least two weights, all edges need the same amount of weights.</description>
 		</Primitive>
 		<Primitive type="String">
@@ -89,7 +89,7 @@
 		</Primitive>
 		<Primitive type="int">
 			<name>% Questions</name>
-			<value><int>0</int></value>
+			<value><int>10</int></value>
 			<description>Percentage of question popups</description>
 		</Primitive>
 		<Primitive type="int">

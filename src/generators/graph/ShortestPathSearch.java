@@ -92,7 +92,7 @@ public class ShortestPathSearch {
 		Util.setUpOffset(graphNodes);
 		Util.setUpQuestions(language);
 		setupGraph(edgeWeights, graphNodes, nodeLabels, start, target);
-		this.lowerBounds = new LowerBounds(graphEdges, target, 2);
+		this.lowerBounds = new LowerBounds(graphEdges, target, weightCount);
 		showIntroduction();
 		if (goalDirected || earlyTermination) {
 			showOptimization();
