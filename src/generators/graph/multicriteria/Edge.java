@@ -4,6 +4,11 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class Edge {
+	
+	public int start;
+	public int end;
+	public List<Integer> weights = new ArrayList<>();
+	
 	public Edge(int start, int end, int... weights) {
 		this.start = start;
 		this.end = end;
@@ -17,8 +22,4 @@ public class Edge {
 		invertedEdge.weights = this.weights;
 		return invertedEdge;
 	}
-
-	public int start;
-	public int end;
-	public List<Integer> weights = new ArrayList<>();
 }

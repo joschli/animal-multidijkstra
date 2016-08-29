@@ -30,13 +30,12 @@ public class StringUtil {
 				: labelStr;
 		return labelStr;
 	}
-	
-	public static String createLabelStringWithoutNumber(Graph graph, Label label){
+
+	public static String createLabelStringWithoutNumber(Graph graph, Label label) {
 		return "L:[" + getLabelWeights(label.weights) + "(" + getLabelPath(graph, label) + ")]";
 	}
-	
-	public static String createFullLabelString(Graph graph, Label label){
-		return "L" + label.index + ":[" + getLabelWeights(label.weights) + "("
-				+ getLabelPath(graph, label) + ")]";
+
+	public static String createFullLabelString(Graph graph, Label label) {
+		return "L" + label.index + ":[" + getLabelWeights(label.weights) + "(" + getLabelPath(graph, label) + ")]";
 	}
 }

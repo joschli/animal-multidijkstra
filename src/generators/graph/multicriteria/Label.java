@@ -10,8 +10,8 @@ public class Label implements Comparable<Label> {
 	public Label prev;
 	public List<Integer> weights = new ArrayList<>();
 	public Label lowerBound = null;
-	
-	public Label(Label l){
+
+	public Label(Label l) {
 		this.prev = l.prev;
 		this.node = l.node;
 		this.index = l.index;
@@ -44,7 +44,7 @@ public class Label implements Comparable<Label> {
 	}
 
 	private Label addLowerBounds(List<Integer> lowerBounds) {
-		if(lowerBounds.isEmpty())
+		if (lowerBounds.isEmpty())
 			return new Label(this);
 		Label newLabel = new Label(node, index);
 		for (int i = 0; i < weights.size(); i++) {
