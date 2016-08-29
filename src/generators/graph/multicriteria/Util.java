@@ -40,7 +40,7 @@ public class Util {
 	public static int pqX = 400;
 	public static int labelsX = 500;
 	public static int sourceCodeX = 600;
-	public static int newLabelX = 180;
+	public static int newLabelX = 100;
 	public static int pqY = 70;
 	public static int labelsY = 70;
 	public static int sourceCodeY = 50;
@@ -140,7 +140,7 @@ public class Util {
 		Util.pqX = maxX + 50;
 		Util.labelsX = pqX + 150;
 		Util.sourceCodeX = labelsX + 150;
-		Util.newLabelX = pqX - 175;
+		Util.newLabelX = pqX - 220;
 		Util.newLabelY = maxY + 50;
 		Util.counterY = newLabelY + 50;
 	}
@@ -348,10 +348,12 @@ public class Util {
         FillInBlanksQuestionModel fq = new FillInBlanksQuestionModel("copy" + copyId);
         copyId++;
         fq.setPrompt(q.getPrompt().replace("XY", l.toString()).replace("XE", e.toString()));
-        fq.addAnswer((l.weights.get(0)+e.weights.get(0)) + "," + (l.weights.get(1) + e.weights.get(1)), 1, "Correct");
+        Label newLabel = new Label(l, e, l.index, new ArrayList<>());
+        String weights = StringUtil.getLabelWeights(newLabel.weights);
+        fq.addAnswer(weights.substring(0, weights.length()-1), 1, "Correct");
         fq.setGroupID(group1);
         language.addFIBQuestion(fq);
-      }else{
+      }else{ 
         language.addMCQuestion((MultipleChoiceQuestionModel) q);
       }
     }

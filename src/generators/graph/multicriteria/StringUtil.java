@@ -24,15 +24,19 @@ public class StringUtil {
 		return path;
 	}
 
-	public static String getLabelString(Graph graph, Label label, int labelIndex) {
-		String labelStr = createFullLabelString(graph, label, labelIndex);
+	public static String getLabelString(Graph graph, Label label) {
+		String labelStr = createFullLabelString(graph, label);
 		labelStr = labelStr.length() > Util.MAXLABELLENGTH ? labelStr.substring(0, Util.MAXLABELLENGTH) + "..."
 				: labelStr;
 		return labelStr;
 	}
 	
-	public static String createFullLabelString(Graph graph, Label label, int labelIndex){
-		return "L" + (labelIndex != -1 ? labelIndex : "") + ":[" + getLabelWeights(label.weights) + "("
+	public static String createLabelStringWithoutNumber(Graph graph, Label label){
+		return "L:[" + getLabelWeights(label.weights) + "(" + getLabelPath(graph, label) + ")]";
+	}
+	
+	public static String createFullLabelString(Graph graph, Label label){
+		return "L" + label.index + ":[" + getLabelWeights(label.weights) + "("
 				+ getLabelPath(graph, label) + ")]";
 	}
 }

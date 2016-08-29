@@ -40,13 +40,15 @@ public class Multicriteria implements ValidatingGenerator {
 		this.props = (ArrayProperties)props.getPropertiesByName("Color Properties");
 		nodes = (String[]) primitives.get("Nodes (N|X|Y)");
 		query = (String) primitives.get("Query (From|To)");
-		edges = (String[]) primitives.get("Edges (From|To|Weight1|Weight2)");
+		edges = (String[]) primitives.get("Edges (From|To|Weight1|Weight2|...)");
 		int perc = (int) primitives.get("% Questions");
 		int corr = (int) primitives.get("Max correct");
+		boolean goalDirected = (boolean) primitives.get("Goal-directed search");
+		boolean dominationByTerminal = (boolean) primitives.get("Domination by Terminal");
 		Util.rightPerCategories = corr;
 		Util.percentageOfQuestions = perc;
 		parseInput();
-		new ShortestPathSearch(lang).start(edgeWeights, graphNodes, nodeLabels, startIndex, targetIndex, this.props);
+		new ShortestPathSearch(lang).start(edgeWeights, graphNodes, nodeLabels, startIndex, targetIndex, goalDirected, dominationByTerminal, this.props);
 		lang.finalizeGeneration();
 		return lang.toString();
 	}
@@ -112,9 +114,9 @@ public class Multicriteria implements ValidatingGenerator {
 	public String getDescription() {
 		return "The multicriterial shortest path search is used to find Pareto optimal paths through a directed graph, where the edges have weights for multiple criteria."
 				+ "\n"
-				+ " It is loosely based on Dijkstras Shortest Path Algorithm, but has several adjustments to support more than one search criterion."
+				+ "It is loosely based on Dijkstras Shortest Path Algorithm, but has several adjustments to support more than one search criterion."
 				+ "\n"
-				+ " Because multiple criteria are used, the algorithm can result in more than one Pareto optimal path.";
+				+ "Because multiple criteria are used, the algorithm can result in more than one Pareto optimal path.";
 	}
 
 	public String getCodeExample() {
@@ -156,7 +158,7 @@ public class Multicriteria implements ValidatingGenerator {
 			throws IllegalArgumentException {
 		String[] checkNodes = (String[]) primitives.get("Nodes (N|X|Y)");
 		String checkQuery = (String) primitives.get("Query (From|To)");
-		String[] checkEdges = (String[]) primitives.get("Edges (From|To|Weight1|Weight2)");
+		String[] checkEdges = (String[]) primitives.get("Edges (From|To|Weight1|Weight2|...)");
 		ArrayList<String> nodeLabels = new ArrayList<String>();
 		
 		//Validate Nodes

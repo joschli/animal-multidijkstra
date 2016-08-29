@@ -79,7 +79,7 @@
 			<value><StringArray>(A|300|100), (B|50|300), (C|300|300), (D|500|300), (E|300|600)</StringArray></value>
 		</Primitive>
 		<Primitive type="StringArray">
-			<name>Edges (From|To|Weight1|Weight2)</name>
+			<name>Edges (From|To|Weight1|Weight2|...)</name>
 			<value><StringArray>(A|B|10|2) , (A|C|21|1), (A|D|15|1), (B|C|10|1), (B|E|30|3), (C|E|10|4), (C|D|10|2), (D|E|20|2)</StringArray></value>
 		</Primitive>
 		<Primitive type="String">
@@ -96,6 +96,15 @@
 			<value><int>3</int></value>
 			<description>Maximum number of correctly answered questions per category</description>
 		</Primitive>
-		
+		<Primitive type="boolean">
+			<name>Goal-directed search</name>
+			<value><boolean>true</boolean></value>
+			<description>If the goal-direction search should be used.</description>
+		</Primitive>
+		<Primitive type="boolean">
+			<name>Domination by Terminal</name>
+			<value><boolean>true</boolean></value>
+			<description>If Domination by Labels at the Terminal should be used</description>
+		</Primitive>
 	</Folder>
 </PropertiesTreeModel>

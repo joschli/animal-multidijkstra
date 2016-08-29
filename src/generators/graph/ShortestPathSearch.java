@@ -18,7 +18,6 @@ import algoanim.primitives.Graph;
 import algoanim.primitives.SourceCode;
 import algoanim.primitives.StringArray;
 import algoanim.primitives.Text;
-import algoanim.primitives.generators.AnimationType;
 import algoanim.primitives.generators.Language;
 import algoanim.properties.AnimationPropertiesKeys;
 import algoanim.properties.ArrayProperties;
@@ -38,6 +37,7 @@ public class ShortestPathSearch {
 
 	private Language language;
 	private Text header;
+	private Text optiHeader;
 	private Text header2;
 	private SourceCode src;
 	private SourceCode dominatedSrc;
@@ -48,9 +48,16 @@ public class ShortestPathSearch {
 	private StringArray ps;
 	private NodeLabelList labels;
 	private StringArray newLabelArray;
+
+	// private Queue<Label> queue = new PriorityQueue<>((l, r) -> {
+	// return l.lowerBound.compareTo(r.lowerBound);
+	// });
+
 	private Queue<Label> queue = new PriorityQueue<>();
 	private Map<Integer, List<Edge>> graphEdges;
 	private Map<Integer, List<Label>> nodeLabels = new HashMap<>();
+	private int weightCount = 0;
+	private int target = 0;
 	private List<Label> terminalList = new ArrayList<>();
 
 	private boolean goalDirected = false;
@@ -72,23 +79,27 @@ public class ShortestPathSearch {
 		nodeLabels = new HashMap<Integer, List<Label>>();
 	}
 
-	public void start(List<Integer[][]> edgeWeights, Coordinates[] graphNodes, String[] nodeLabels,
-			int start, int target, ArrayProperties props) {
+	public void start(List<Integer[][]> edgeWeights, Coordinates[] graphNodes, String[] nodeLabels, int start,
+			int target, boolean goalDirected, boolean dominationByTerminal, ArrayProperties props) {
 		language.setInteractionType(Language.INTERACTION_TYPE_AVINTERACTION);
+		this.earlyTermination = dominationByTerminal;
+		if (goalDirected) {
+			queue = new PriorityQueue<>((l, r) -> {
+				return l.lowerBound.compareTo(r.lowerBound);
+			});
+		}
 		arrayProps = props;
+		weightCount = edgeWeights.size();
+		this.target = target;
 		Util.setGraphColors(props);
 		Util.setUpOffset(graphNodes);
 		Util.setUpQuestions(language);
-		for(int w = 0; w < edgeWeights.size(); w++){
-			for(int i = 0; i < edgeWeights.get(w).length; i++){
-				for(int j = 0; j < edgeWeights.get(w)[i].length; j++){
-					System.out.println(edgeWeights.get(w)[i][j]);
-				}
-			}
-		}
 		setupGraph(edgeWeights, graphNodes, nodeLabels, start, target);
 		this.lowerBounds = new LowerBounds(graphEdges, target, 2);
 		showIntroduction();
+		if (goalDirected || earlyTermination) {
+			showOptimization();
+		}
 		showMainPanel();
 		showAlgorithm();
 		showConclusion();
@@ -136,13 +147,13 @@ public class ShortestPathSearch {
 		src.highlight(4); // Create Start Labels
 		language.nextStep();
 		// Create Start Labels
-		Label startLabel = new Label(start, 0, 0);
+		Label startLabel = new Label(start, 0, 0, 0);
 		queue.add(startLabel);
 		nodeLabels.put(start, Arrays.asList(startLabel));
 		// Create Start Labels Animation
 		pq.highlightCell(1, 1, null, null);
 		labels.highlightCell(1, 1, null, null);
-		String labelStr = StringUtil.getLabelString(graph, startLabel, start);
+		String labelStr = StringUtil.getLabelString(graph, startLabel);
 		labelIndex++;
 		pq.put(1, labelStr, null, null);
 		labels.addLabelToNodeList(labelStr, graph.getNodeLabel(start));
@@ -181,7 +192,7 @@ public class ShortestPathSearch {
 				graph.setEdgeHighlightTextColor(e.start, e.end, Color.BLACK, null, null);
 				language.nextStep();
 
-				Label newLabel = new Label(label, e);
+				Label newLabel = new Label(label, e, labelIndex, lowerBounds.getLowerBounds(e.end));
 				// New Label Creation
 				unhighlightSource(src);
 				src.highlight(8);
@@ -191,51 +202,55 @@ public class ShortestPathSearch {
 						nodeLabels.keySet().stream().map(x -> graph.getNodeLabel(x)).collect(Collectors.toList()));
 
 				language.nextStep();
-				labelStr = StringUtil.getLabelString(graph, newLabel, labelIndex);
+				labelStr = StringUtil.getLabelString(graph, newLabel);
 				labelIndex++;
 				newLabelArray.put(1, labelStr, null, null);
 				newLabelArray.highlightCell(1, null, null);
 				incCreated();
 				language.nextStep();
 				// show lower bounds
-				showLowerBounds(newLabel.node);
+				lb.highlightCell(newLabel.node + 1, null, null);
 				// Dominated by Terminal Label + lowerBounds Highlight
 				src.unhighlight(8);
 				src.highlight(9);
 				language.nextStep();
-				if (isDominated(newLabel.addLowerBounds(lowerBounds.getLowerBounds(newLabel.node)), terminalList)) {
+				if (earlyTermination && isDominated(newLabel.lowerBound, terminalList)) {
 					incDominated();
 					src.unhighlight(9);
 					src.highlight(11);
 					language.nextStep();
 					graph.unhighlightEdge(e.start, e.end, null, null);
+					lb.unhighlightCell(newLabel.node + 1, null, null);
 					language.nextStep();
 					continue;
 				}
 
 				// Dominated by labels at node Highlight
-				src.unhighlight(9);
-				src.highlight(10);
-				language.nextStep();
+				if(earlyTermination){
+					src.unhighlight(9);
+					src.highlight(10);
+					language.nextStep();
+				}
 				if (isDominated(newLabel, nodeLabels.get(newLabel.node))) {
 					// Continue Highligh und Clear
 					incDominated();
-					src.unhighlight(10);
-					src.highlight(11);
+					src.unhighlight(changedHighlightIndex(10));
+					src.highlight(changedHighlightIndex(11));
 					language.nextStep();
 					graph.unhighlightEdge(e.start, e.end, null, null);
+					lb.unhighlightCell(newLabel.node + 1, null, null);
 					language.nextStep();
 					continue;
 				}
 				// Is Terminal Reached
-				src.unhighlight(10);
-				src.highlight(12);
+				src.unhighlight(changedHighlightIndex(10));
+				src.highlight(changedHighlightIndex(12));
 				language.nextStep();
 
 				if (newLabel.node == target) {
 					// Insert in Terminal List
-					src.unhighlight(12);
-					src.highlight(13);
+					src.unhighlight(changedHighlightIndex(12));
+					src.highlight(changedHighlightIndex(13));
 					language.nextStep();
 					labels.addLabelToNodeList(labelStr, graph.getNodeLabel(target));
 					labels.highlightLastAdded(graph.getNodeLabel(target));
@@ -244,8 +259,8 @@ public class ShortestPathSearch {
 					terminalList.add(newLabel);
 					nodeLabels.get(newLabel.node).add(newLabel);
 				} else {
-					src.unhighlight(12);
-					src.highlight(15);
+					src.unhighlight(changedHighlightIndex(12));
+					src.highlight(changedHighlightIndex(15));
 					language.nextStep();
 					removed = false;
 
@@ -260,8 +275,8 @@ public class ShortestPathSearch {
 					});
 
 					// Adding Animation
-					src.unhighlight(15);
-					src.highlight(16);
+					src.unhighlight(changedHighlightIndex(15));
+					src.highlight(changedHighlightIndex(16));
 					language.nextStep();
 					labels.addLabelToNodeList(labelStr, graph.getNodeLabel(newLabel.node));
 					labels.highlightLastAdded(graph.getNodeLabel(newLabel.node));
@@ -272,34 +287,34 @@ public class ShortestPathSearch {
 					nodeLabels.get(newLabel.node).add(newLabel);
 
 					// PQ Add Animation
-					src.unhighlight(16);
-					src.highlight(17);
+					src.unhighlight(changedHighlightIndex(16));
+					src.highlight(changedHighlightIndex(17));
 					language.nextStep();
+
 					addToPq(labelStr);
-
 					queue.add(newLabel);
-
+					
 					// Cleaning up
-					src.unhighlight(17);
+					src.unhighlight(changedHighlightIndex(17));
 					language.nextStep();
 				}
 				// Cleaning up
 				graph.unhighlightEdge(e.start, e.end, null, null);
 				newLabelArray.put(1, "          ", null, null);
 				newLabelArray.unhighlightCell(1, null, null);
+				lb.unhighlightCell(newLabel.node + 1, null, null);
 				language.nextStep();
 			}
 			// Cleaning up
 			graph.unhighlightNode(label.node, null, null);
 			language.nextStep();
 			// Extract from Queue
-			extractFromPq();
-			pq.unhighlightCell(1, null, null);
+			sortPq();
 			unhighlightEverything();
 			language.nextStep();
 		}
 
-		src.highlight(18);
+		src.highlight(changedHighlightIndex(18));
 		language.nextStep();
 
 		terminalList.removeIf(x -> {
@@ -312,22 +327,29 @@ public class ShortestPathSearch {
 			}
 			return false;
 		});
-		src.unhighlight(18);
+		src.unhighlight(changedHighlightIndex(18));
 		labels.highlightNodeList(graph.getNodeLabel(target));
 		language.nextStep();
 	}
 
-	private void showLowerBounds(int node) {
-		List<Integer> lower = lowerBounds.getLowerBounds(node);
-		for (int i = 0; i < lower.size(); i++) {
-			lb.put(i + 1, lower.get(i).toString(), null, null);
+	private void sortPq() {
+		List<Label> labels = new ArrayList<>();
+		for(Label l : queue){
+			labels.add(l);
 		}
+		for(int i = 0; i < queue.size(); i++){
+			Label l = labels.get(i);
+			pq.unhighlightCell(i+1, null, null);
+			pq.put(i+1, StringUtil.getLabelString(graph, l), null, null);
+		}
+		
 	}
 
-	private void extractFromPq() {
-		for (int i = 1; i < pq.getLength() - 1; i++) {
-			pq.put(i, pq.getData(i + 1), null, null);
+	private int changedHighlightIndex(int index){
+		if(!earlyTermination){
+			return index--;
 		}
+		return index;
 	}
 
 	private void addToPq(String labelStr) {
@@ -364,7 +386,7 @@ public class ShortestPathSearch {
 
 	private boolean isDominated(Label newLabel, List<Label> labelList) {
 		// Code Highlight
-		ps.put(0, StringUtil.getLabelString(graph, newLabel, -1), null, null);
+		ps.put(0, StringUtil.createLabelStringWithoutNumber(graph, newLabel), null, null);
 		ps.show();
 		dominatedSrc.highlight(0);
 		language.nextStep();
@@ -375,7 +397,7 @@ public class ShortestPathSearch {
 		if (nodeLabels.get(newLabel.node) != null && nodeLabels.get(newLabel.node).size() != 0) {
 			Util.getDominatedQuestion(language,
 					willBeDominated(newLabel) ? Util.WILLBEDOMINATED : Util.WILLNOTBEDOMINATED, null, newLabel, null,
-					StringUtil.createFullLabelString(graph, newLabel, -1));
+					StringUtil.createLabelStringWithoutNumber(graph, newLabel));
 		}
 		language.nextStep();
 		if (labelList != null) {
@@ -385,8 +407,8 @@ public class ShortestPathSearch {
 				dominatedSrc.highlight(2);
 				dominatedSrc.highlight(3);
 				Util.getDominatedQuestion(language, dominates(l, newLabel) ? Util.LABELDOMINATED : Util.NOTDOMINATED, l,
-						newLabel, StringUtil.createFullLabelString(graph, l, -1),
-						StringUtil.createFullLabelString(graph, newLabel, -1));
+						newLabel, StringUtil.createLabelStringWithoutNumber(graph, l),
+						StringUtil.createLabelStringWithoutNumber(graph, newLabel));
 				language.nextStep();
 
 				if (dominates(l, newLabel)) {
@@ -401,6 +423,10 @@ public class ShortestPathSearch {
 					ps.hide();
 					return true;
 				}
+				dominatedSrc.unhighlight(2);
+				dominatedSrc.unhighlight(3);
+				dominatedSrc.highlight(1);
+				language.nextStep();
 			}
 		}
 		// Unhighlight
@@ -435,7 +461,7 @@ public class ShortestPathSearch {
 		return smallerEqual && smaller;
 	}
 
-	public void showIntroduction() {
+	private void showIntroduction() {
 		TextProperties headerProps = new TextProperties();
 		headerProps.set(AnimationPropertiesKeys.FONT_PROPERTY, new Font(Font.SANS_SERIF, Font.BOLD, 16));
 		headerProps.set("centered", true);
@@ -453,7 +479,64 @@ public class ShortestPathSearch {
 		language.nextStep();
 	}
 
-	public void showConclusion() {
+	private void showOptimization() {
+		String text = "Lower Bounds for every criterium are calculated by finding the shortest path "
+				+ "\nfrom the target node to every node with only one criteria. "
+				+ "\nTherefore graphs with only one criteria with inverted edges are created "
+				+ "\nand the dijkstra algorithm is used to find the shortest paths from the "
+				+ "\ntarget node to every other node. ";
+		if (earlyTermination) {
+			text += "\nThese Lower Bounds are then used to implement Domination by Labels at the Terminal. "
+					+ "\nIf any Label that is created with its Lower Bounds from the node it is created on "
+					+ "\nis dominated by a label that at the terminal it is discarded, because it already cannot "
+					+ "\nget better than a Label at the terminal. ";
+		}
+		if (goalDirected) {
+			text += "\nLower Bounds are used to sort the Priority Queue to extract the most promising "
+					+ "\nLabel first. This is done by adding the Lower Bounds of a labels node to the label and then "
+					+ "\n sorting the labels. ";
+		}
+		text += "\n Lower Bounds for every node in this graph with these weights are:";
+		src.hide();
+		header.hide();
+		graph.show();
+		TextProperties headerProps = new TextProperties();
+		headerProps.set(AnimationPropertiesKeys.FONT_PROPERTY, new Font(Font.SANS_SERIF, Font.BOLD, 16));
+		headerProps.set("centered", true);
+		optiHeader = language.newText(new Coordinates(450, 10), "Optimizations with Lower Bounds", "header", null,
+				headerProps);
+		SourceCode optis = language.newSourceCode(new Coordinates(Util.pqX, 70), "introduction", null, sourceCodeProps);
+		optis.addMultilineCode(text, "", null);
+		StringArray s = null;
+		String[] arr = new String[graphEdges.size() + 1];
+		arr[0] = "Lower Bounds: ";
+		for (int n = 0; n < graphEdges.size(); n++) {
+			List<Integer> list = lowerBounds.getLowerBounds(n);
+			int[] lower = new int[list.size()];
+			for (int i = 0; i < list.size(); i++) {
+				lower[i] = list.get(i);
+			}
+			Label l = new Label(target, -1, lower);
+			l.prev = new Label(n, -1);
+			arr[n + 1] = StringUtil.createLabelStringWithoutNumber(graph, l);
+		}
+		s = language.newStringArray(new Coordinates(Util.pqX + 100, Util.pqY + 300), arr, "", null, arrayProps);
+		lb = language.newStringArray(new Coordinates(Util.pqX, Util.pqY + 520), arr, "lb", null, arrayProps);
+		lb.hide();
+		s.put(0, arr[0], null, null);
+		lb.put(0, arr[0], null, null);
+		s.showIndices(false, null, null);
+		lb.showIndices(false, null, null);
+		language.nextStep();
+		s.hide();
+		lb.show();
+		optis.hide();
+		optiHeader.hide();
+		header.show();
+		src.show();
+	}
+
+	private void showConclusion() {
 		language.hideAllPrimitives();
 		labels.hide();
 		lb.hide();
@@ -471,7 +554,7 @@ public class ShortestPathSearch {
 		terminalList.sort((l, r) -> {
 			return l.compareTo(r);
 		});
-		List<String> text = terminalList.stream().map(x -> StringUtil.getLabelString(graph, x, -1))
+		List<String> text = terminalList.stream().map(x -> StringUtil.createLabelStringWithoutNumber(graph, x))
 				.collect(Collectors.toList());
 		Util.MAXLABELLENGTH = 14;
 		if (terminalList.size() > 1) {
@@ -496,20 +579,9 @@ public class ShortestPathSearch {
 				"Therefore, it is important to keep the number of created Labels as low as possible."));
 		info.setText(text);
 		src.hide();
-		/*
-		 * src = language.newSourceCode(new Coordinates(100, 40), "conclusion",
-		 * null, sourceCodeProps); src.addMultilineCode(
-		 * "Pareto Optimal Paths: L5 with {35,3} from start to goal over a." +
-		 * "\nL5 {35,3} dominates L4 {40,3} at the terminal node, " +
-		 * "\nbecause it is better in the first criterion and not worse in the second."
-		 * +
-		 * "\nIf L4 would have been {40,2}, both paths would have been Pareto optimal, "
-		 * + "\nbecause neither of them can dominate the other one.", "end",
-		 * null);
-		 */
 	}
 
-	public void showSourceCode() {
+	private void showSourceCode() {
 		src.hide();
 		src = language.newSourceCode(new Coordinates(Util.sourceCodeX, Util.sourceCodeY), "code", null,
 				sourceCodeProps);
@@ -522,9 +594,14 @@ public class ShortestPathSearch {
 		src.addCodeLine("Label label := pq.extractLabel();", "code", 1, null);
 		src.addCodeLine("foreach outgoing edge e=(v,w) do", "code", 1, null);
 		src.addCodeLine("Label newLabel := createLabel(label, e);", "code", 2, null);
-		src.addCodeLine("if isDominated(newLabel + lowerBoundsAt(w), terminalList) ", "code", 2, null);
-		src.addCodeLine("|| isDominated(newLabel, labelListAt(w) then", "code", 3, null);
-		src.addCodeLine("continue;", "code", 4, null);
+		if(earlyTermination){
+			src.addCodeLine("if isDominated(newLabel + lowerBoundsAt(w), terminalList) ", "code", 2, null);
+			src.addCodeLine("|| isDominated(newLabel, labelListAt(w) then", "code", 3, null);
+			src.addCodeLine("continue;", "code", 4, null);
+		}else{
+			src.addCodeLine("if isDominated(newLabel, labelListAt(w) then", "code", 2, null);
+			src.addCodeLine("continue;", "code", 3, null);
+		}
 		src.addCodeLine("if isTerminalReached(newLabel) then", "code", 2, null);
 		src.addCodeLine("terminalList.insert(newLabel);", "code", 3, null);
 		src.addCodeLine("else", "code", 2, null);
@@ -544,7 +621,7 @@ public class ShortestPathSearch {
 		dominatedSrc.show();
 	}
 
-	public void showMainPanel() {
+	private void showMainPanel() {
 		showSourceCode();
 		setupCounter();
 		graph.show();
@@ -554,23 +631,15 @@ public class ShortestPathSearch {
 
 	private void showArrays() {
 		String[] queue = new String[20];
-		String[] lower = new String[graph.getSize() + 1];
 		String[] paras = new String[1];
 		for (int i = 0; i < queue.length; i++) {
 			queue[i] = "";
 		}
-		for (int i = 0; i < lower.length; i++) {
-			lower[i] = "";
-		}
-		lower[0] = "Lower Bounds: ";
 		queue[0] = "PQ:            ";
 		paras[0] = "            ";
 
 		ArrayProperties opt = arrayProps;
 		ArrayProperties optLabel = new ArrayProperties();
-		opt.set("filled", false);
-		opt.set("fillColor", Color.white);
-		opt.set("cellHighlight", Color.green);
 		Util.setArrayProperties(optLabel);
 		optLabel.set(AnimationPropertiesKeys.DIRECTION_PROPERTY, false);
 		opt.set(AnimationPropertiesKeys.DIRECTION_PROPERTY, true);
@@ -582,57 +651,53 @@ public class ShortestPathSearch {
 				new String[labelsSize], "labels", null, opt), graph);
 		newLabelArray = language.newStringArray(new Coordinates(Util.newLabelX, Util.newLabelY),
 				new String[] { "newLabel: ", "               " }, "newLabel", null, optLabel);
-		lb = language.newStringArray(new Coordinates(Util.pqX, Util.pqY + 520), lower, "lb", null, opt);
+
 		ps = language.newStringArray(new Coordinates(Util.sourceCodeX + 100, Util.dominatesY - 20), paras, "paras",
 				null, opt);
 		ps.highlightCell(0, null, null);
 		pq.put(2, "", null, null);
-		lb.put(1, "", null, null);
 		pq.showIndices(false, null, null);
 		labels.showIndices(false, null, null);
 		newLabelArray.showIndices(false, null, null);
-		lb.showIndices(false, null, null);
 		ps.showIndices(false, null, null);
 		ps.hide();
 		labels.show();
 		newLabelArray.show();
 		pq.show();
-		lb.show();
 	}
 
-	public void setupGraph(List<Integer[][]> edgeWeights, Node[] nodes, String[] nodeLabels, int start,
-			int target) {
+	private void setupGraph(List<Integer[][]> edgeWeights, Node[] nodes, String[] nodeLabels, int start, int target) {
 
 		for (int i = 0; i < nodes.length; i++) {
 			graphEdges.put(i, new ArrayList<Edge>());
 		}
-		
+
 		int[][][] weights = new int[edgeWeights.size()][edgeWeights.get(0).length][edgeWeights.get(0)[0].length];
-		for(int w = 0; w < edgeWeights.size(); w++){
-			for(int i = 0; i < edgeWeights.get(w).length; i++){
-				for(int j = 0; j < edgeWeights.get(w)[i].length; j++){
+		for (int w = 0; w < edgeWeights.size(); w++) {
+			for (int i = 0; i < edgeWeights.get(w).length; i++) {
+				for (int j = 0; j < edgeWeights.get(w)[i].length; j++) {
 					weights[w][i][j] = edgeWeights.get(w)[i][j];
 				}
 			}
 		}
 		GraphProperties prop = Util.getGraphProperties();
-		graph = language.newGraph("Test", weights[0], nodes,nodeLabels, null, prop);
-		for(int i = 0; i < weights[0].length; i++){
-			for(int j = 0 ; j < weights[0][0].length; j++){
+		graph = language.newGraph("Test", weights[0], nodes, nodeLabels, null, prop);
+		for (int i = 0; i < weights[0].length; i++) {
+			for (int j = 0; j < weights[0][0].length; j++) {
 				boolean connected = true;
 				String weightStr = "(";
 				int[] edge = new int[weights.length];
-				for(int w = 0; w < weights.length; w++){
+				for (int w = 0; w < weights.length; w++) {
 					connected = connected && weights[w][i][j] != 0;
 					edge[w] = weights[w][i][j];
-					if(w != weights.length - 1){
+					if (w != weights.length - 1) {
 						weightStr += weights[w][i][j] + ",";
-					}else{
+					} else {
 						weightStr += weights[w][i][j] + ")";
 					}
 				}
 
-				if(connected){
+				if (connected) {
 					graph.setEdgeWeight(i, j, weightStr, null, null);
 					graphEdges.get(i).add(new Edge(i, j, edge));
 				}
@@ -642,32 +707,5 @@ public class ShortestPathSearch {
 		graph.setStartNode(graph.getNode(start));
 		graph.setTargetNode(graph.getNode(target));
 		graph.hide();
-	}
-
-	public static void main(String[] args) {
-		Language lang = Language.getLanguageInstance(AnimationType.ANIMALSCRIPT, "Shortest Multicriteria Path Search",
-				"Tim Witzel, Jonas Schlitzer", 800, 600);
-		// Changeable Graph
-		// First and second Weight of Edges, two weights of zero mean no edge
-		Integer[][] edgeweights1 = { { 0, 10, 15, 0, 21 }, { 0, 0, 0, 30, 10 }, { 0, 0, 0, 20, 0 }, { 0, 0, 0, 0, 0 },
-				{ 0, 0, 10, 10, 0 } };
-		Integer[][] edgeweights2 = { { 0, 2, 1, 0, 1 }, { 0, 0, 0, 3, 1 }, { 0, 0, 0, 2, 0 }, { 0, 0, 0, 0, 0 },
-				{ 0, 0, 2, 4, 0 } };
-		List<Integer[][]> edgeWeights = new ArrayList<>();
-		edgeWeights.add(edgeweights1);
-		edgeWeights.add(edgeweights2);
-		// Coordinates of graphNodes
-		Coordinates[] graphNodes = { new Coordinates(300, 100), new Coordinates(50, 300), new Coordinates(500, 300),
-				new Coordinates(300, 600), new Coordinates(300, 300) };
-		// Labels of graph Nodes
-		String[] nodeLabels = new String[] { "Start", "A", "B", "Goal", "C" };
-		// Startindex of the search
-		int startIndex = 0;
-		// Targetindex of the search
-		int targetIndex = 3;
-
-		new ShortestPathSearch(lang).start(edgeWeights, graphNodes, nodeLabels, startIndex, targetIndex,
-				new ArrayProperties());
-		System.out.println(lang);
 	}
 }
