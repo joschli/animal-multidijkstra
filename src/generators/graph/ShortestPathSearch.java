@@ -54,7 +54,7 @@ public class ShortestPathSearch {
 	private Map<Integer, List<Label>> nodeLabels = new HashMap<>();
 	private int target = 0;
 	private List<Label> terminalList = new ArrayList<>();
-
+	
 	private boolean goalDirected = false;
 	private boolean earlyTermination = false;
 	private LowerBounds lowerBounds;
@@ -494,8 +494,9 @@ public class ShortestPathSearch {
 		String text = "Lower Bounds for every criterium are calculated by finding the shortest path "
 				+ "\nfrom the target node to every node with only one criteria. "
 				+ "\nTherefore graphs with only one criteria with inverted edges are created "
-				+ "\nand the dijkstra algorithm is used to find the shortest paths from the "
-				+ "\ntarget node to every other node. ";
+				+ "\nand Dijkstra's Shortest Path Algorithm is used to find the shortest paths from "
+				+ "\ntarget node to every other node. The distance value of these paths are the Lower Bounds "
+				+ "\nfor a criterium and a certain node. ";
 		if (earlyTermination) {
 			text += "\nThese Lower Bounds are then used to implement Domination by Labels at the Terminal. "
 					+ "\nIf any Label that is created with its Lower Bounds from the node it is created on "
@@ -504,10 +505,11 @@ public class ShortestPathSearch {
 		}
 		if (goalDirected) {
 			text += "\nLower Bounds are used to sort the Priority Queue to extract the most promising "
-					+ "\nLabel first. This is done by adding the Lower Bounds of a labels node to the label and then "
-					+ "\nsorting the labels. ";
+					+ "\nLabel first. This is done by adding the Lower Bounds to all labels and then "
+					+ "\nsorting the labels. The Lower Bounds added to a label are the Lower Bounds "
+					+ "\nfor the node at which the label is. ";
 		}
-		text += "\n Lower Bounds for every node in this graph with these weights are:";
+		text += "\n Lower Bounds for every node in this graph are:";
 		src.hide();
 		header.hide();
 		graph.show();
