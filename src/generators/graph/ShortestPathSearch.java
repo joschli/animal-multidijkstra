@@ -63,6 +63,7 @@ public class ShortestPathSearch {
 	private TwoValueView counter;
 	private int createdLabels;
 	private int dominatedLabels;
+	private int weightCount = 0;
 
 	private boolean removed = false;
 	List<Edge> edges = new ArrayList<>();
@@ -79,7 +80,7 @@ public class ShortestPathSearch {
 		language.setInteractionType(Language.INTERACTION_TYPE_AVINTERACTION);
 		this.earlyTermination = dominationByTerminal;
 		this.goalDirected = goalDirected;
-		System.out.println(earlyTermination);
+		this.weightCount = edgeWeights.size();
 		if (goalDirected) {
 			queue = new PriorityQueue<>((l, r) -> {
 				return l.lowerBound.compareTo(r.lowerBound);
@@ -143,7 +144,11 @@ public class ShortestPathSearch {
 		src.highlight(4); // Create Start Labels
 		language.nextStep();
 		// Create Start Labels
-		Label startLabel = new Label(start, 0, 0, 0);
+		int[] startLabelWeights = new int[weightCount];
+		for(int i = 0; i < weightCount; i++){
+			startLabelWeights[i] = 0;
+		}
+		Label startLabel = new Label(start, 0, startLabelWeights);
 		queue.add(startLabel);
 		nodeLabels.put(start, Arrays.asList(startLabel));
 		// Create Start Labels Animation

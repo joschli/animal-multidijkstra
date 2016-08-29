@@ -7,9 +7,11 @@ package generators.graph;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.Hashtable;
 import java.util.List;
 import java.util.Locale;
+import java.util.Set;
 
 import algoanim.animalscript.AnimalScript;
 import algoanim.primitives.generators.Language;
@@ -195,6 +197,7 @@ public class Multicriteria implements ValidatingGenerator {
 		}
 
 		// Validate Edges
+		Set<Integer> weightCounts = new HashSet<>();
 		boolean edgeBool = Arrays.asList(checkEdges).stream().allMatch(x -> {
 			if ((x.charAt(0) != '(') || x.charAt(x.length() - 1) != ')') {
 				return false;
@@ -208,6 +211,7 @@ public class Multicriteria implements ValidatingGenerator {
 				return false;
 			}
 			boolean valid = true;
+			weightCounts.add(edgeStrings.length - 2);
 			for (int i = 2; i < edgeStrings.length; i++) {
 				if (i != edgeStrings.length - 1) {
 					valid = valid && isPositiveInteger(edgeStrings[i]);
@@ -217,6 +221,8 @@ public class Multicriteria implements ValidatingGenerator {
 			}
 			return valid;
 		});
+		// Check if all edges have the same amount of weights
+		edgeBool = edgeBool && (weightCounts.size() == 1);
 		System.out.println("NODESVALID:" + nodeBool + " | QUERYVALID: " + queryBool + " | EDGESVALID: " + edgeBool);
 
 		return nodeBool && queryBool && edgeBool;

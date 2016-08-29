@@ -81,6 +81,7 @@
 		<Primitive type="StringArray">
 			<name>Edges (From|To|Weight1|Weight2|...)</name>
 			<value><StringArray>(A|B|10|2) , (A|C|21|1), (A|D|15|1), (B|C|10|1), (B|E|30|3), (C|E|10|4), (C|D|10|2), (D|E|20|2)</StringArray></value>
+			<description>An Edge needs two nodes and at least two weights, all edges need the same amount of weights.</description>
 		</Primitive>
 		<Primitive type="String">
 			<name>Query (From|To)</name>
