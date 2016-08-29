@@ -507,8 +507,6 @@ public class Util {
 			allLess = allLess && d;
 			atLeastOneNotLess = atLeastOneNotLess || d;
 		}
-		boolean w1isLess = dominating.weights.get(0) < dominated.weights.get(0);
-		boolean w2isLess = dominating.weights.get(1) < dominated.weights.get(1);
 		if (b) {
 			String wrong1 = "Because the sum of both weights is lower for the dominating Label.";
 			answers.add(new Answer(wrong1,
