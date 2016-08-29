@@ -500,6 +500,13 @@ public class Util {
 
 		Label dominating = l;
 		Label dominated = newL;
+		boolean allLess = true;
+		boolean atLeastOneNotLess = false;
+		for(int i = 0; i < dominating.weights.size(); i++){
+			boolean d = dominating.weights.get(i) < dominated.weights.get(i);
+			allLess = allLess && d;
+			atLeastOneNotLess = atLeastOneNotLess || d;
+		}
 		boolean w1isLess = dominating.weights.get(0) < dominated.weights.get(0);
 		boolean w2isLess = dominating.weights.get(1) < dominated.weights.get(1);
 		if (b) {
@@ -507,21 +514,21 @@ public class Util {
 			answers.add(new Answer(wrong1,
 					"Incorrect. The sum of weights is irrelevant, both weights are considered separately.", 0, false));
 
-			if (w1isLess && w2isLess) {
-				String answerStr = "Because both weights of the dominating Label are lower than the weights of the dominated Label.";
+			if (allLess) {
+				String answerStr = "Because all weights of the dominating Label are lower than the weights of the dominated Label.";
 				answers.add(new Answer(answerStr, "Correct!", 1, true));
-				String wrong2 = "Because at least one weight is less than the according weight of the dominated Label. The other weight would not necessarily be needed to dominate the other Label in this case.";
+				String wrong2 = "Because at least one weight is less than the according weight of the dominated Label. The other weights would not necessarily be needed to dominate the other Label in this case.";
 				answers.add(new Answer(wrong2,
 						"Incorrect! The other weight matters as it has to be equal or lower to be able to dominate the other label",
 						0, false));
 
 			}
-			if ((w1isLess && !w2isLess) || (!w1isLess && w2isLess)) {
-				String answerStr = "Because one weight is lower and the other weight is not greater than the according weights of the dominated label.";
+			if (atLeastOneNotLess) {
+				String answerStr = "Because one weight is lower and the other weights are not greater than the according weights of the dominated label.";
 				answers.add(new Answer(answerStr, "Correct", 1, true));
-				String wrong2 = "Because at least one weight is less than the according weight of the dominated label. The other weight does not matter in this case.";
+				String wrong2 = "Because at least one weight is less than the according weight of the dominated label. The other weights do not matter in this case.";
 				answers.add(new Answer(wrong2,
-						"Incorrect! The other weight matters as it has to be equal or lower to dominate the other Label.",
+						"Incorrect! The other weights matters as they have to be equal or lower to dominate the other Label.",
 						0, false));
 			}
 
@@ -531,23 +538,23 @@ public class Util {
 			String correctAnswer = "";
 			String wrong1;
 			String wrong2;
-			if (w1isLess && !w2isLess || !w1isLess && w2isLess) {
-				correctAnswer = "Because only one weight of the second Label is lower than the according weight of the first Label and the second weight is greater and not equal or lower. Therefore, they can not dominate each other and are both Pareto optimal.";
+			if (atLeastOneNotLess) {
+				correctAnswer = "Because only one weight of the second Label is lower than the according weight of the first Label and the other weights are greater and not equal or lower. Therefore, they can not dominate each other and are both Pareto optimal.";
 				answers.add(new Answer(correctAnswer, "Correct!", 1, true));
-				wrong1 = "Because both weights are required to be lower than the according weights of the first Label to dominate the first Label";
+				wrong1 = "Because all weights are required to be lower than the according weights of the first Label to dominate the first Label";
 				answers.add(new Answer(wrong1,
-						"Incorrect! It would suffice if one weight is equal and one weight is lower to dominate the Label.",
+						"Incorrect! It would suffice if one weight is lower and the other weights are equal to dominate the Label.",
 						0, false));
-				wrong2 = "Because the sum of both weights of the second label is worse than the sum of the first label and therefore, the second label is objectively not better.";
+				wrong2 = "Because the sum of all weights of the second label is worse than the sum of the first label and therefore, the second label is objectively not better.";
 				answers.add(new Answer(wrong2,
 						"Incorrect! The sum does not matter at all for domination, as weights are considered separately.",
 						0, false));
 			}
 
-			if (!w1isLess && !w2isLess) {
-				correctAnswer = "Because both weights of the second label are worse or equal than the weights of the first label and therefore, the second label is objectively not better.";
+			if (!allLess) {
+				correctAnswer = "Because all weights of the second label are worse or equal than the weights of the first label and therefore, the second label is objectively not better.";
 				answers.add(new Answer(correctAnswer, "Correct!", 1, true));
-				wrong1 = "Because the sum of both weights of the second label is worse than the sum of the first label and therefore, the second label is objectively not better.";
+				wrong1 = "Because the sum of all weights of the second label is worse than the sum of the first label and therefore, the second label is objectively not better.";
 				answers.add(new Answer(wrong1,
 						"Incorrect! The sum does not matter at all for domination, as weights are considered separately.",
 						0, false));
